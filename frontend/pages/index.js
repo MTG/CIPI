@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
 import { useEffect, useState } from 'react'
-import { API_HOST } from './config'
+import { API_HOST } from '../config'
 
 const inter = Inter({ subsets: ['latin'] })
 
