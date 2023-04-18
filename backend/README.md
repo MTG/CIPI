@@ -23,7 +23,7 @@ pip3 install -r requirements.txt
 
 ```bash
 cd backend
-flask --app api/index run
+flask --app api/index run --reload
 ```
 
 # Run (with Vercel)
