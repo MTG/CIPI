@@ -18,3 +18,8 @@ npm install
 ```bash
 npm run dev
 ```
+
+# Deploy manually
+```bash
+vercel deploy
+```

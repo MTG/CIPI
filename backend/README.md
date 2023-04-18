@@ -23,7 +23,7 @@ pip3 install -r requirements.txt
 
 ```bash
 cd backend
-flask run
+flask --app api/index run
 ```
 
 # Run (with Vercel)
@@ -33,4 +33,9 @@ This backend uses the Web Server Gateway Interface (WSGI) with Flask to enable h
 ```bash
 npm i -g vercel
 vercel dev
+```
+
+# Deploy manually
+```bash
+vercel deploy
 ```
