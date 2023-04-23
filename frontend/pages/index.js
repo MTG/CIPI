@@ -22,7 +22,7 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <div className={styles.description}>
-          <p>
+          <p className="text-red-400">
             {JSON.stringify(apiResult)}
           </p>
           <div>
