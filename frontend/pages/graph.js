@@ -67,6 +67,32 @@ const initialTransform = (width, height) => ({
 });
 
 const ZoomI = ({ width, height }) => {
+  const {
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    tooltipOpen,
+    showTooltip,
+    hideTooltip,
+  } = useTooltip();
+  // If you don't want to use a Portal, simply replace `TooltipInPortal` below with
+  // `Tooltip` or `TooltipWithBounds` and remove `containerRef`
+  const { TooltipInPortal } = useTooltipInPortal({
+    // use TooltipWithBounds
+    detectBounds: true,
+    // when tooltip containers are scrolled, this will correctly update the Tooltip position
+    scroll: true,
+  })
+  const handleMouseOver = (event, datum) => {
+    console.log("alohaaa")
+    const coords = localPoint(event.target.ownerSVGElement, event);
+    showTooltip({
+      tooltipLeft: coords.x,
+      tooltipTop: coords.y,
+      tooltipData: datum
+    });
+  };
+
   if (!width && !height) return <></>
   return (
     <>
@@ -86,22 +112,10 @@ const ZoomI = ({ width, height }) => {
               height={height}
               style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
               ref={zoom.containerRef}
+                      
             >
               <RectClipPath id="zoom-clip" width={width} height={height} />
-              <rect width={width} height={height} rx={14} fill={bg} />
-              <g transform={zoom.toString()}>
-                {points.map((point, i) => {
-                  const { x, y, bg } = point;
-                  return <React.Fragment key={`dot-${i}`}>
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={0.5}
-                      fill={bg}
-                    />
-                  </React.Fragment>
-                })}
-              </g>
+              <rect width={width} height={height} rx={14} fill={bg}  />
               <rect
                 width={width}
                 height={height}
@@ -121,60 +135,56 @@ const ZoomI = ({ width, height }) => {
                   zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
                 }}
               />
+              <g transform={zoom.toString()}>
+                {points.map((point, i) => {
+                  const { x, y, bg } = point;
+                  return <React.Fragment key={`dot-${i}`}>
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={0.5}
+                      fill={bg}
+                      
+              onMouseOver={e => {
+                if (point.tooltip) {
+                  point.bg = "#666666"
+                  handleMouseOver(e, point)
+                }
+                
+              }}
+              onMouseLeave={e => {
+                if (point.tooltip){
+                  point.bg = '#222222'
+                  hideTooltip()
+                }
+                
+              }}
+                    />
+                  </React.Fragment>
+                })}
+                
+              </g>
+              
             </svg>
+
+            {tooltipOpen && (
+                <TooltipWithBounds
+                  // set this to random so it correctly updates with parent bounds
+                  key={Math.random()}
+                  top={tooltipTop}
+                  left={tooltipLeft}
+                >
+                  <strong>{tooltipData?.tooltip?.name}</strong>
+                </TooltipWithBounds>
+              )}
           </div>
         )}
       </Zoom>
-      <style jsx>{`
-        .btn {
-          margin: 0;
-          text-align: center;
-          border: none;
-          background: #2f2f2f;
-          color: #888;
-          padding: 0 4px;
-          border-top: 1px solid #0a0a0a;
-        }
-        .btn-lg {
-          font-size: 12px;
-          line-height: 1;
-          padding: 4px;
-        }
-        .btn-zoom {
-          width: 26px;
-          font-size: 22px;
-        }
-        .btn-bottom {
-          margin-bottom: 1rem;
-        }
-        .description {
-          font-size: 12px;
-          margin-right: 0.25rem;
-        }
-        .controls {
-          position: absolute;
-          top: 15px;
-          right: 15px;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-        }
-        .mini-map {
-          position: absolute;
-          bottom: 25px;
-          right: 15px;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-        }
-        .relative {
-          position: relative;
-        }
-      `}</style>
     </>
   );
 }
 
+import { useTooltip, useTooltipInPortal, TooltipWithBounds } from '@visx/tooltip';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 export default function Example() {
