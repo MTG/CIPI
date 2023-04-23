@@ -7,35 +7,77 @@ import genPhyllotaxis, {
   GenPhyllotaxisFunction,
   PhyllotaxisPoint,
 } from '@visx/mock-data/lib/generators/genPhyllotaxis';
+import { withTooltip, Tooltip } from '@visx/tooltip';
 
 const bg = '#ffffff';
-const points = [...new Array(1000)];
+const points = [{
+  x: 0,
+  y: 0,
+  bg: '#ff0000',
+  tooltip: null
+},
+{
+  x: -2,
+  y: +1,
+  bg: '#222222',
+  tooltip: {
+    name: 'beethoven 2nd 7th'
+  }
+},
+{
+  x: -3,
+  y: +2,
+  bg: '#222222',
+  tooltip: {
+    name: 'beethoven 3nd 7th'
+  }
+},
+{
+  x: 2,
+  y: -3,
+  bg: '#222222',
+  tooltip: {
+    name: 'beethoven 4th 7th'
+  }
+},
+{
+  x: 3,
+  y: -4,
+  bg: '#222222',
+  tooltip: {
+    name: 'beethoven 5th 7th'
+  }
+},
+{
+  x: 3.5,
+  y: -5,
+  bg: '#222222',
+  tooltip: {
+    name: 'beethoven 8th 7th'
+  }
+}];
 
-const initialTransform = {
-  scaleX: 1.27,
-  scaleY: 1.27,
-  translateX: -211.62,
-  translateY: 162.59,
+const initialTransform = (width, height) => ({
+  scaleX: 20,
+  scaleY: 20,
+  translateX: width/2,
+  translateY: height/2,
   skewX: 0,
   skewY: 0,
-};
+});
 
 const ZoomI = ({ width, height }) => {
-  const [showMiniMap, setShowMiniMap] = useState(true);
-
-  const generator = genPhyllotaxis({ radius: 10, width, height });
-  const phyllotaxis = points.map((d, i) => generator(i));
-
+  if (!width && !height) return <></>
   return (
     <>
       <Zoom
         width={width}
         height={height}
-        scaleXMin={1 / 2}
-        scaleXMax={4}
-        scaleYMin={1 / 2}
-        scaleYMax={4}
-        initialTransformMatrix={initialTransform}
+        scaleXMin={10}
+        scaleXMax={50}
+        scaleYMin={10}
+        scaleYMax={50}
+        initialTransformMatrix={initialTransform(width, height)}
       >
         {(zoom) => (
           <div className="relative">
@@ -48,16 +90,17 @@ const ZoomI = ({ width, height }) => {
               <RectClipPath id="zoom-clip" width={width} height={height} />
               <rect width={width} height={height} rx={14} fill={bg} />
               <g transform={zoom.toString()}>
-                {phyllotaxis.map(({ x, y }, i) => (
-                  <React.Fragment key={`dot-${i}`}>
+                {points.map((point, i) => {
+                  const { x, y, bg } = point;
+                  return <React.Fragment key={`dot-${i}`}>
                     <circle
                       cx={x}
                       cy={y}
-                      r={10}
-                      fill={'#ff0000'}
+                      r={0.5}
+                      fill={bg}
                     />
                   </React.Fragment>
-                ))}
+                })}
               </g>
               <rect
                 width={width}
@@ -136,13 +179,13 @@ import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 export default function Example() {
     /*
-    <ZoomI width={visWidth} height={visHeight} />
+    
     */
-  return <div className="flex justify-center vw-100 vh-100 bg-white">
+  return <div className="flex justify-center content-center h-screen w-screen bg-white">
       <div className="app-graph ">
           <ParentSize debounceTime={10}>
             {({ width: visWidth, height: visHeight }) => (
-              <></>
+              <ZoomI width={visWidth} height={visHeight} />
             )}
           </ParentSize>
         </div>
@@ -158,9 +201,8 @@ export default function Example() {
           display: flex;
           flex: 1;
           overflow: hidden;
-          background: #222;
-          max-width: 50%;
-          max-height: 50%;
+          max-width: 100%;
+          max-height: 100%;
         }
       `}</style>
     </div>
