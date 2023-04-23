@@ -14,47 +14,53 @@ const points = [{
   x: 0,
   y: 0,
   bg: '#ff0000',
-  tooltip: null
+  tooltip: null,
+  id: 1
 },
 {
   x: -2,
   y: +1,
-  bg: '#222222',
+  bg: '#666666',
   tooltip: {
     name: 'beethoven 2nd 7th'
-  }
+  },
+  id: 2
 },
 {
   x: -3,
   y: +2,
-  bg: '#222222',
+  bg: '#666666',
   tooltip: {
     name: 'beethoven 3nd 7th'
-  }
+  },
+  id: 3
 },
 {
   x: 2,
   y: -3,
-  bg: '#222222',
+  bg: '#666666',
   tooltip: {
     name: 'beethoven 4th 7th'
-  }
+  },
+  id: 4
 },
 {
   x: 3,
   y: -4,
-  bg: '#222222',
+  bg: '#666666',
   tooltip: {
     name: 'beethoven 5th 7th'
-  }
+  },
+  id: 5
 },
 {
   x: 3.5,
   y: -5,
-  bg: '#222222',
+  bg: '#666666',
   tooltip: {
     name: 'beethoven 8th 7th'
-  }
+  },
+  id: 6
 }];
 
 const initialTransform = (width, height) => ({
@@ -67,6 +73,9 @@ const initialTransform = (width, height) => ({
 });
 
 const ZoomI = ({ width, height }) => {
+  const [selectedPiece, setSelectedPiece] = useState(null)
+  const [hoveringPiece, setHoveringPiece] = useState(null)
+
   const {
     tooltipData,
     tooltipLeft,
@@ -84,7 +93,6 @@ const ZoomI = ({ width, height }) => {
     scroll: true,
   })
   const handleMouseOver = (event, datum) => {
-    console.log("alohaaa")
     const coords = localPoint(event.target.ownerSVGElement, event);
     showTooltip({
       tooltipLeft: coords.x,
@@ -105,12 +113,19 @@ const ZoomI = ({ width, height }) => {
         scaleYMax={50}
         initialTransformMatrix={initialTransform(width, height)}
       >
-        {(zoom) => (
-          <div className="relative">
+        {(zoom) => {
+          const onDragStart = (e) => {
+            hideTooltip()
+            setSelectedPiece(null)
+            setHoveringPiece(null)
+            zoom.dragStart(e)
+            if (selectedPiece) selectedPiece.bg = "#666666"
+          }
+          return <div className="relative">
             <svg
               width={width}
               height={height}
-              style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+              className={ 'touch-none ' + (zoom.isDragging ? 'cursor-grabbing' : 'cursor-grab') }
               ref={zoom.containerRef}
                       
             >
@@ -121,18 +136,14 @@ const ZoomI = ({ width, height }) => {
                 height={height}
                 rx={14}
                 fill="transparent"
-                onTouchStart={zoom.dragStart}
+                onTouchStart={onDragStart}
                 onTouchMove={zoom.dragMove}
                 onTouchEnd={zoom.dragEnd}
-                onMouseDown={zoom.dragStart}
+                onMouseDown={onDragStart}
                 onMouseMove={zoom.dragMove}
                 onMouseUp={zoom.dragEnd}
                 onMouseLeave={() => {
                   if (zoom.isDragging) zoom.dragEnd();
-                }}
-                onDoubleClick={(event) => {
-                  const point = localPoint(event) || { x: 0, y: 0 };
-                  zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
                 }}
               />
               <g transform={zoom.toString()}>
@@ -140,25 +151,28 @@ const ZoomI = ({ width, height }) => {
                   const { x, y, bg } = point;
                   return <React.Fragment key={`dot-${i}`}>
                     <circle
+                    className={point.tooltip && "cursor-pointer"}
                       cx={x}
                       cy={y}
                       r={0.5}
-                      fill={bg}
+                      fill={point.tooltip === null? point.bg: selectedPiece === point ? '#222222': hoveringPiece === point? '#444444': '#666666'}
+                     onClick={(e) => {
+                      if (point.tooltip) {
+                      setSelectedPiece(point)
+                      handleMouseOver(e, point)
+                      }
+                    } }
+                    onMouseOver={e => {
+                      if (point.tooltip) {
+                        setHoveringPiece(point)
+                      }
                       
-              onMouseOver={e => {
-                if (point.tooltip) {
-                  point.bg = "#666666"
-                  handleMouseOver(e, point)
-                }
-                
-              }}
-              onMouseLeave={e => {
-                if (point.tooltip){
-                  point.bg = '#222222'
-                  hideTooltip()
-                }
-                
-              }}
+                    }}
+                    onMouseLeave={e => {
+                      if (point.tooltip){
+                        setHoveringPiece(null)
+                      }
+                    }}
                     />
                   </React.Fragment>
                 })}
@@ -178,7 +192,7 @@ const ZoomI = ({ width, height }) => {
                 </TooltipWithBounds>
               )}
           </div>
-        )}
+        }}
       </Zoom>
     </>
   );
