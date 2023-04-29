@@ -20,7 +20,7 @@ MOCK_PIECES = [
         "author": "Thompson, John Sylvanus",
         "difficulty": {
             "x1": 0.09,
-            "x2": 0.29
+            "x2": 0.01
         },
         "id": "1b80e035-fd87-431d-b3bc-49998d2d4639"
     },
@@ -130,7 +130,7 @@ MOCK_PIECES = [
         "author": "Chopin, Frédéric",
         "difficulty": {
             "x1": 0.98,
-            "x2": 0.95
+            "x2": 0.99
         },
         "id": "04501465-704e-4145-bf5e-ee2df03283e7"
     }

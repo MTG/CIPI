@@ -42,15 +42,29 @@ const SelectedPieceCard = ({ selectedPiece }) => {
   </div>
 }
 
+const grayscaleHex = (value) => {
+  const intValue = Math.round(value * 255);
+  const hexValue = intValue.toString(16).padStart(2, '0');
+  return `#${hexValue}${hexValue}${hexValue}`;
+}
+
+function mapRange(value, fromMin, fromMax, toMin, toMax) {
+  const range = fromMax - fromMin;
+  const scaledValue = (value - fromMin) / range;
+  const toRange = toMax - toMin;
+  return (scaledValue * toRange) + toMin;
+}
+
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
   const getPieceColor = ({piece, isHovered, isSelected }) => {
+    const mappedDifficulty = 1-mapRange((piece.difficulty.x1+piece.difficulty.x2)/2, 0, 1, 0.2, 0.7);
     if (isSelected) return '#dc2626';
-    if (isHovered) return '#444444';
-    return '#666666';
+    if (isHovered) return grayscaleHex(mappedDifficulty-0.2);
+    return grayscaleHex(mappedDifficulty);
 };
   return  <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
-              { selectedPiece && <SelectedPieceCard selectedPiece={selectedPiece} /> }
+              <SelectedPieceCard selectedPiece={selectedPiece} />
               <PieceGraph 
                 pieces={pieces} 
                 onSelectPiece={setSelectedPiece} 
