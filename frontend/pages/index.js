@@ -6,7 +6,7 @@ import { GraphExplorer } from '../components/GraphExplorer'
 const MapModeToggle = ({mapMode, setMapMode}) => {
   return <label className="relative inline-flex items-center mr-5 cursor-pointer">
     <input type="checkbox" value="" className="sr-only peer" checked={mapMode} onChange={() => setMapMode(x => !x)} />
-    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-red-300 dark:peer-focus:ring-red-800 dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
+    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-red-300 dark:peer-focus:ring-red-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
     <span className="ml-3 text-sm font-medium text-gray-600">Map mode</span>
   </label>;
 }
@@ -31,10 +31,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.png" />
       </Head>
-      <main className="min-h-screen flex flex-col">
+      <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-2">
         <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
         { !mapMode && <ListExplorer />}
-        { mapMode && <div className="flex justify-center content-center flex-1 bg-white">
+        { mapMode && <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
           <GraphExplorer pieces={pieces} /> 
           </div>}
       </main>
