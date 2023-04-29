@@ -50,7 +50,7 @@ export const GraphExplorer = ({ pieces }) => {
     return '#666666';
 };
   return  <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
-              <SelectedPieceCard selectedPiece={selectedPiece} />
+              { selectedPiece && <SelectedPieceCard selectedPiece={selectedPiece} /> }
               <PieceGraph 
                 pieces={pieces} 
                 onSelectPiece={setSelectedPiece} 
