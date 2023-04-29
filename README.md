@@ -7,4 +7,4 @@ This project involves building a web-based tool for exploring and recommending c
 - `/backend`: Python (Flask) API
 
 # Staging
-https://piano-fe-miquelvir.vercel.app
+https://cipi.vercel.app/
