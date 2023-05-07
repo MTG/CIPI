@@ -19,40 +19,35 @@ const SearchBar = ({ setSearch }) => {
   };
 
   return (
-    <div className="relative w-80">
+    <div className="relative flex items-center w-80">
       <input
         type="text"
         value={query}
         onChange={handleInputChange}
-        placeholder="Search"
-        className="w-80 px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+        placeholder="Search for a piece, author, ..."
+        className="w-64 px-4 py-2 text-gray-900 bg-gray-100 rounded-l-md focus:outline-none focus:ring focus:ring-blue-300"
       />
-      <svg
-        className="absolute top-2 right-2 h-5 w-5 text-gray-400"
-        fill="currentColor"
-        viewBox="0 0 20 20"
+      <button
+        type="submit"
+        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline"
       >
-        <path
-          fillRule="evenodd"
-          d="M13.93 12.06a8 8 0 111.414-1.414l3.293 3.293a1 1 0 01-1.414 1.414l-3.293-3.293zm-4.92 0a4.5 4.5 0 103.182 1.318l.707.707a1 1 0 11-1.414 1.414l-.707-.707A4.472 4.472 0 009.01 12.06z"
-          clipRule="evenodd"
-        />
-      </svg>
+        Search
+      </button>
     </div>
   );
 }
 
 const SearchFilter = ({ setFilters }) => {
   const [author, setAuthor] = useState("");
-  const [year, setYear] = useState("");
+  const [epoch, setEpoch] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [signatureKey, setSignatureKey] = useState("");
 
   const handleAuthorChange = (event) => {
     setAuthor(event.target.value);
   };
-  const handleYearChange = (event) => {
-    setYear(event.target.value);
+  const handleEpochChange = (event) => {
+    setEpoch(event.target.value);
   };
 
   const handleDifficultyChange = (event) => {
@@ -65,7 +60,7 @@ const SearchFilter = ({ setFilters }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ author, year, difficulty, signatureKey });
+    setFilters({ author, epoch, difficulty, signatureKey });
   };
 
   return (
@@ -79,9 +74,9 @@ const SearchFilter = ({ setFilters }) => {
       />
       <input
         type="text"
-        value={year}
-        onChange={handleYearChange}
-        placeholder="Year"
+        value={epoch}
+        onChange={handleEpochChange}
+        placeholder="Epoch"
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       />
       <input
@@ -100,7 +95,7 @@ const SearchFilter = ({ setFilters }) => {
       />
       <button
         type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2 sm:mt-0"
+        className="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2 sm:mt-0"
       >
         Filter
       </button>
@@ -175,7 +170,7 @@ export default function Home() {
   const [searchFilter, setSearchFilter] = useState({
     author: '',
     name: '',
-    year: '',
+    epoch: '',
     difficulty: '',
     signatureKey: ''
   });
