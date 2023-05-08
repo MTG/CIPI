@@ -12,14 +12,20 @@ const MapModeToggle = ({mapMode, setMapMode}) => {
   </label>;
 }
 
-const SearchBar = ({ setSearch }) => {
+const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
+
   const handleInputChange = (event) => {
     setQuery(event.target.value);
   };
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSearch(query);
+  };
+
   return (
-    <div className="relative flex items-center w-80">
+    <form onSubmit={handleSubmit} className="relative flex items-center w-80">
       <input
         type="text"
         value={query}
@@ -29,13 +35,12 @@ const SearchBar = ({ setSearch }) => {
       />
       <button
         type="submit"
-        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline"
-      >
-        Search
+        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline">
+          Search
       </button>
-    </div>
+    </form>
   );
-}
+};
 
 const SearchFilter = ({ setFilters }) => {
   const [author, setAuthor] = useState("");
@@ -177,11 +182,12 @@ export default function Home() {
 
   useEffect(() => {
     fetch(`${API_HOST}/pieces`).then(r => r.json()).then(r => setPieces(r['array']))
-  }, []);
+  }, []); 
 
-  const handleSearch = (event) => {
-    setSearchQuery({...searchQuery, [event.target.name]: event.target.value});
+  const handleSearch = (query) => {
+    setSearchQuery({...searchQuery, query});
   };
+
   const handleFilterChange = (event) => {
     setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
   };
@@ -199,7 +205,7 @@ export default function Home() {
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
         </div>
         <div className="flex justify-center">
-          <SearchBar query={searchQuery} setQuery={handleSearch} />
+          <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
           <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
@@ -207,6 +213,9 @@ export default function Home() {
         { mapMode && <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
           <GraphExplorer pieces={pieces} searchQuery={searchQuery} searchFilter={searchFilter} /> 
           </div>}
+        <div className="flex justify-center">
+          {searchQuery.query && <p>{searchQuery.query}</p>}
+        </div>
       </main>
     </>
   )
