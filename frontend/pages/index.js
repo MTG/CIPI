@@ -22,6 +22,7 @@ const SearchBar = ({ onSearch }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     onSearch(query);
+    setQuery("");
   };
 
   return (
@@ -30,13 +31,14 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         value={query}
         onChange={handleInputChange}
-        placeholder="Search for a piece, author, ..."
+        placeholder="Search for a piece by id"
         className="w-64 px-4 py-2 text-gray-900 bg-gray-100 rounded-l-md focus:outline-none focus:ring focus:ring-blue-300"
       />
       <button
         type="submit"
-        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline">
-          Search
+        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline"
+      >
+        Search
       </button>
     </form>
   );
@@ -167,30 +169,30 @@ export const GraphExplorer = ({ pieces }) => {
 
 
 export default function Home() {
-  const [pieces, setPieces] = useState({});
+  const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
-  const [searchQuery, setSearchQuery] = useState({
-    query: ''
-  });
-  const [searchFilter, setSearchFilter] = useState({
-    author: '',
-    name: '',
-    epoch: '',
-    difficulty: '',
-    signatureKey: ''
-  });
+  const [searchResult, setSearchResult] = useState(null);
+
+  //const [searchFilter, setSearchFilter] = useState({
+  //  author: '',
+  // name: '',
+  //  epoch: '',
+  // difficulty: '',
+  //  signatureKey: ''
+  //});
 
   useEffect(() => {
     fetch(`${API_HOST}/pieces`).then(r => r.json()).then(r => setPieces(r['array']))
   }, []); 
 
-  const handleSearch = (query) => {
-    setSearchQuery({...searchQuery, query});
+  const handleSearch = (id) => {
+    const piece = pieces.find((p) => p.id === id);
+    setSearchResult(piece ? { title: piece.title, period: piece.period, author: piece.author } : null);
   };
 
-  const handleFilterChange = (event) => {
-    setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
-  };
+  //const handleFilterChange = (event) => {
+  //  setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
+  // };
 
   return (
     <>
@@ -208,15 +210,23 @@ export default function Home() {
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
+          {searchResult && (
+            <div >
+              <p className="w-64 px-4 py-2 font-medium text-lg text-black bg-white focus:outline-none focus:ring focus:ring-blue-300" >
+                {searchResult.title}</p>
+              <p className="w-64 px-4 py-2 text-black bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300">
+                {searchResult.author}</p>
+              <p className="w-64 px-4 py-2 text-black bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300">
+                {searchResult.period}</p>
+            </div>
+          )}
         </div>
-        { mapMode && <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
-          <GraphExplorer pieces={pieces} searchQuery={searchQuery} searchFilter={searchFilter} /> 
-          </div>}
-        <div className="flex justify-center">
-          {searchQuery.query && <p>{searchQuery.query}</p>}
-        </div>
+        {mapMode && (
+          <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
+            <GraphExplorer pieces={pieces} />
+          </div>
+        )}
       </main>
     </>
-  )
+  );
 }
