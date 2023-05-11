@@ -21,10 +21,10 @@ def predict_difficulty(machine_readable_mtrx):
 
     device = 'cpu'
     model = gpt2_classiffier_2_multi(
-        checkpoint_dir=f"../../../bootlegGPT/models_trained/pt2-imslp-ft_fc5_real", device=device
+        checkpoint_dir=f"diff_model/models/pt2-imslp-ft_fc5_real", device=device
     )
     checkpoint = torch.load(
-        f"../../../ismir_experiments/ismir/multi_weighted_per_dataset/checkpoint_0.pth",
+        f"diff_model/models/multi_weighted_per_dataset/checkpoint_0.pth",
         map_location=torch.device('cpu')
     )
 
