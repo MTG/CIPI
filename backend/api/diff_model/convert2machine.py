@@ -54,3 +54,6 @@ def convert2machine(path_score):
     bootleg_path = pianostreet_convert2bootleg(path_score)
     binary_matrix = get_bootleg_matrix(bootleg_path)
     return binary_matrix
+
+
+
