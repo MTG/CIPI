@@ -9,8 +9,6 @@ import os
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-
-
 def predict_difficulty(machine_readable_mtrx):
     """
     Predict the difficulty of a score from a bootleg binarymatrix.
@@ -23,7 +21,7 @@ def predict_difficulty(machine_readable_mtrx):
 
     device = 'cpu'
     model = gpt2_classiffier_2_multi(
-        checkpoint_dir=f"../../../bootlegGPT/models_trained/gpt2-base-fc-real", device=device
+        checkpoint_dir=f"../../../bootlegGPT/models_trained/pt2-imslp-ft_fc5_real", device=device
     )
     checkpoint = torch.load(
         f"../../../ismir_experiments/ismir/multi_weighted_per_dataset/checkpoint_0.pth",

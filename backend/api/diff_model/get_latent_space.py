@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 import torch
 
@@ -51,10 +52,10 @@ def get_latent_space(feat):
     device = 'cpu'
 
     model = gpt2_classiffier_2_multi(
-        checkpoint_dir="../bootlegGPT/models_trained/pt2-imslp-ft_fc5_real", device=device
+        checkpoint_dir="../../../bootlegGPT/models_trained/pt2-imslp-ft_fc5_real", device=device
     )
     checkpoint = torch.load(
-        f"../ismir_experiments/ismir/multi_weighted_per_dataset/checkpoint_0.pth",
+        f"../../../ismir_experiments/ismir/multi_weighted_per_dataset/checkpoint_0.pth",
         map_location=torch.device('cpu')
     )
 
@@ -63,6 +64,9 @@ def get_latent_space(feat):
     model.eval()
 
     embedding = model.get_projection(feat.unsqueeze(0), torch.Tensor([feat.shape[0]]).int())
-    ans = embedding.squeeze().numpy()
-    return ans
+    ans = embedding.detach().numpy()
+    # load numpy pca pca_two_dimensions_model.pkl and transform the data with joblib
+    pca = joblib.load('diff_model/pca_two_dimensions_model.pkl')
+    predicted_map = pca.transform(ans)
+    return predicted_map
 
