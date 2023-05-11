@@ -66,6 +66,6 @@ def get_latent_space(feat):
     ans = embedding.detach().numpy()
     # load numpy pca pca_two_dimensions_model.pkl and transform the data with joblib
     pca = joblib.load('diff_model/pca_two_dimensions_model.pkl')
-    predicted_map = pca.transform(ans)
+    predicted_map = pca.transform(ans)[0]
     return predicted_map
 
