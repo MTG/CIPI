@@ -34,4 +34,6 @@ def predict_difficulty(machine_readable_mtrx):
 
     ans = model(backbone_embedding.unsqueeze(0), torch.Tensor([backbone_embedding.shape[0]]).int())
 
-    return prediction2label(ans[0]), prediction2label(ans[1]), prediction2label(ans[2])
+    return prediction2label(ans[0]).detach().tolist()[0], \
+        prediction2label(ans[1]).detach().tolist()[0], \
+        prediction2label(ans[2]).detach().tolist()[0]
