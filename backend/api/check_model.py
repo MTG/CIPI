@@ -1,6 +1,6 @@
-from backend.api.diff_model.convert2machine import convert2machine
-from backend.api.diff_model.get_latent_space import get_latent_space
-from backend.api.diff_model.predict_difficulty import predict_difficulty
+from diff_model.convert2machine import convert2machine
+from diff_model.get_latent_space import get_latent_space
+from diff_model.predict_difficulty import predict_difficulty
 
 # the score we want to process
 path_score = "examples/124.pdf"
