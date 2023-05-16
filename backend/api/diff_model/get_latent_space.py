@@ -2,8 +2,8 @@ import joblib
 import numpy as np
 import torch
 
-from backend.api.diff_model.bootleg_gpt2 import GPTConfig, GPT
-from backend.api.diff_model.model import gpt2_classiffier_2_multi
+from .bootleg_gpt2 import GPTConfig, GPT
+from .model import gpt2_classiffier_2_multi
 
 def get_backbone(bscore):
     first_layer = "2fc"
