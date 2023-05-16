@@ -1,11 +1,6 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
 import { useEffect, useState } from 'react'
 import { API_HOST } from '../config'
-<<<<<<< Updated upstream
-=======
 import { PieceGraph } from '../components/GraphExplorer'
 import { useRouter } from 'next/router'
 
@@ -36,7 +31,7 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         value={query}
         onChange={handleInputChange}
-        placeholder="Search for a piece"
+        placeholder="Search for a piece by id"
         className="w-64 px-4 py-2 text-gray-900 bg-gray-100 rounded-l-md focus:outline-none focus:ring focus:ring-blue-300"
       />
       <button
@@ -51,23 +46,23 @@ const SearchBar = ({ onSearch }) => {
 
 const SearchFilter = ({ setFilters }) => {
   const [author, setAuthor] = useState("");
-  const [period, setPeriod] = useState("");
+  const [epoch, setEpoch] = useState("");
   const [difficulty, setDifficulty] = useState("");
 
   const handleAuthorChange = (event) => {
     setAuthor(event.target.value);
   };
-  const handlePeriodChange = (event) => {
-    setPeriod(event.target.value);
+  const handleEpochChange = (event) => {
+    setEpoch(event.target.value);
   };
 
   const handleDifficultyChange = (event) => {
     setDifficulty(event.target.value);
   };
-  
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ author, period, difficulty});
+    setFilters({ author, epoch, difficulty });
   };
 
   return (
@@ -81,9 +76,9 @@ const SearchFilter = ({ setFilters }) => {
       />
       <input
         type="text"
-        value={period}
-        onChange={handlePeriodChange}
-        placeholder="Period"
+        value={epoch}
+        onChange={handleEpochChange}
+        placeholder="Epoch"
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       />
       <input
@@ -102,13 +97,12 @@ const SearchFilter = ({ setFilters }) => {
     </form>
   );
 }
-
-const ListExplorer = ({ pieces }) => {
-  const router = useRouter();
+const ListExplorer = ({pieces}) => {
+  const router = useRouter()
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
-
+  
   const handlePieceSelection = (piece) => {
     setSelectedPiece(piece);
     router.push(`/pieces/${piece.id}`);
@@ -123,36 +117,26 @@ const ListExplorer = ({ pieces }) => {
     setCurrentPage(page);
   };
 
-  return (
-    <div className={'items-center w-5/6'}>
-      <ul>
-        {displayedPieces.map((piece) => (
-          <li key={piece.id}>
-            <div
-              className={`my-5 border p-4 rounded-md hover:bg-gray-100 ${selectedPiece === null ? '' : ''} cursor-pointer`}
-              onClick={() => handlePieceSelection(piece)}
-            >
-              <div className={'ml-2 text-md font-bold'}>{piece.title}</div>
-              <div className={'ml-2 text-sm font-medium text-gray-600'}>
-                {piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div className="flex justify-center mt-4">
+  return <div className={'items-center w-5/6'}>
+    <ul>
+      {displayedPieces.map((piece) => (
+        <li key={piece.id}>
+          <div className={`my-5 border p-4 rounded-md hover:bg-gray-100 ${selectedPiece === null? '' : '' }`}onClick={() => handlePieceSelection(piece)} >
+            <div className={'ml-2 text-sm font-medium text-gray-600'}>{piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}</div>
+            <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <div className="flex justify-center mt-4">
         {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'}`}
-            onClick={() => goToPage(index + 1)}>
+          <button key={index} className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'}`} onClick={() => goToPage(index + 1)}>
             {index + 1}
           </button>
         ))}
-      </div>
     </div>
-  );
-};
+  </div>
+}
 
 const SelectedPieceCard = ({ selectedPiece }) => {
   const router = useRouter()
@@ -165,8 +149,8 @@ const SelectedPieceCard = ({ selectedPiece }) => {
           <div className="flex mb-1">
               <div className={`rounded-full mr-2 mt-1.5 w-4 h-4 ${selectedPiece === null? 'bg-red-300': 'bg-red-600'}`}/>
               <div className="flex flex-col">
-                  <span className="ml-2 text-md font-bold">{selectedPiece?.title ?? 'Select a piece'}</span>
-                  <span className="ml-2 text-sm font-medium text-gray-600">{selectedPiece?.author ?? '...'}</span>
+                  <span className="font-medium text-lg ">{selectedPiece?.title ?? 'Select a piece'}</span>
+                  <span className="text-md">{selectedPiece?.author ?? '...'}</span>
               </div>
           </div>
       </div>
@@ -210,24 +194,17 @@ export const GraphExplorer = ({ pieces }) => {
               />
           </div>
 }
->>>>>>> Stashed changes
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-<<<<<<< Updated upstream
-  const [apiResult, setApiResult] = useState({});
-  useEffect(() => {
-    fetch(`${API_HOST}/test`).then(r => r.json()).then(setApiResult)
-  }, [])
-=======
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
+
   const [searchFilter, setSearchFilter] = useState({
     author: '',
     name: '',
-    period: '',
+    epoch: '',
     difficulty: ''
   });
 
@@ -244,110 +221,14 @@ export default function Home() {
     setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
    };
 
->>>>>>> Stashed changes
   return (
     <>
       <Head>
-        <title>Create Next App</title>
+        <title>Can I Play It?</title>
         <meta name="description" content="Generated by create next app" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
       </Head>
-<<<<<<< Updated upstream
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p className="text-red-400">
-            {JSON.stringify(apiResult)}
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
-        </div>
-=======
       <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-2">
         <div>
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
@@ -378,8 +259,7 @@ export default function Home() {
         { !mapMode && <div className="flex justify-center">
           <ListExplorer pieces={pieces} />
         </div> }
->>>>>>> Stashed changes
       </main>
     </>
-  )
+  );
 }
