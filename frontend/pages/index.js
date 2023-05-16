@@ -109,6 +109,46 @@ const SearchFilter = ({ setFilters }) => {
     </form>
   );
 }
+const ListExplorer = ({pieces}) => {
+  const router = useRouter()
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  
+  const handlePieceSelection = (piece) => {
+    setSelectedPiece(piece);
+    router.push(`/pieces/${piece.id}`);
+  };
+
+  const lastIndex = currentPage * itemsPerPage;
+  const firstIndex = lastIndex - itemsPerPage;
+  const displayedPieces = Array.isArray(pieces) ? pieces.slice(firstIndex, lastIndex) : [];
+  const totalPages = Math.ceil(pieces.length / itemsPerPage);
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+  };
+
+  return <div className={'items-center w-5/6'}>
+    <ul>
+      {displayedPieces.map((piece) => (
+        <li key={piece.id}>
+          <div className={`my-5 border p-4 rounded-md hover:bg-gray-100 ${selectedPiece === null? '' : '' }`}onClick={() => handlePieceSelection(piece)} >
+            <div className={'ml-2 text-sm font-medium text-gray-600'}>{piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}</div>
+            <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <div className="flex justify-center mt-4">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button key={index} className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'}`} onClick={() => goToPage(index + 1)}>
+            {index + 1}
+          </button>
+        ))}
+    </div>
+  </div>
+}
 
 const SelectedPieceCard = ({ selectedPiece }) => {
   const router = useRouter()
@@ -226,6 +266,9 @@ export default function Home() {
             <GraphExplorer pieces={pieces} />
           </div>
         )}
+        { !mapMode && <div className="flex justify-center">
+          <ListExplorer pieces={pieces} />
+        </div> }
       </main>
     </>
   );
