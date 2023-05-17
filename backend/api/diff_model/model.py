@@ -7,7 +7,7 @@ from torch import nn
 from torch.nn.utils.rnn import pack_padded_sequence as packer, pad_packed_sequence as padder, PackedSequence
 #from transformers.modeling_utils import SequenceSummary
 
-from backend.api.diff_model.bootleg_gpt2 import GPTConfig, GPT, Block, LayerNorm, BCE, new_gelu
+from .bootleg_gpt2 import GPTConfig, GPT, Block, LayerNorm, BCE, new_gelu
 #from train_utils import GPT2Classifier
 from transformers import GPT2Model, GPT2Config
 
