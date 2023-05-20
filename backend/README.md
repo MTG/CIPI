@@ -31,6 +31,11 @@ export ENV=dev
 flask --app api/index run --reload
 ```
 
+# Install the requirements to run the GPT model
+```bash
+pip3 install -r requirements-dev.txt
+```
+
 # Run (with Vercel)
 
 This backend uses the Web Server Gateway Interface (WSGI) with Flask to enable handling requests on Vercel with Serverless Functions.
