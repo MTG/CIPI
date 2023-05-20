@@ -27,6 +27,7 @@ pip3 install -r requirements.txt
 
 ```bash
 cd backend
+export ENV=dev
 flask --app api/index run --reload
 ```
 
