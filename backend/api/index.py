@@ -1,8 +1,14 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+from .login import with_login
+
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 app = Flask(__name__)
 CORS(app)
+
 
 @app.route('/')
 def home():
@@ -135,9 +141,19 @@ MOCK_PIECES = [
         "id": "04501465-704e-4145-bf5e-ee2df03283e7"
     }
 ]
-@app.route('/api/pieces')
+@app.get('/api/pieces')
 def pieces():
     return jsonify({ 
         "_links": {},
         "array": MOCK_PIECES
+    })
+
+
+@app.get('/api/demoAuth')  # only for demostration purposes
+@with_login
+def demo_auth(user):
+    print(user)
+    return jsonify({ 
+        "some": "data",
+        "user": user
     })
