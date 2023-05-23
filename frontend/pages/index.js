@@ -12,6 +12,7 @@ const MapModeToggle = ({mapMode, setMapMode}) => {
   </label>;
 }
 
+
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
 
@@ -31,7 +32,7 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         value={query}
         onChange={handleInputChange}
-        placeholder="Search for a piece by id"
+        placeholder="Search a piece"
         className="w-64 px-4 py-2 text-gray-900 bg-gray-100 rounded-l-md focus:outline-none focus:ring focus:ring-blue-300"
       />
       <button
@@ -53,6 +54,7 @@ const SearchFilter = ({ setFilters }) => {
   const handleAuthorChange = (event) => {
     setAuthor(event.target.value);
   };
+
   const handleEpochChange = (event) => {
     setEpoch(event.target.value);
   };
@@ -72,42 +74,83 @@ const SearchFilter = ({ setFilters }) => {
 
   return (
     <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
-      <input
-        type="text"
+      <select
         value={author}
         onChange={handleAuthorChange}
-        placeholder="Author"
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <input
-        type="text"
+      >
+        <option value="">Select Author</option>
+        <option value="Author 1">Author 1</option>
+        <option value="Author 2">Author 2</option>
+        {/* Add more author options*/}
+      </select>
+
+      <select
         value={epoch}
         onChange={handleEpochChange}
-        placeholder="Epoch"
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <input
-        type="text"
+      >
+        <option value="">Select Epoch</option>
+        <option value="Epoch 1">Romantic</option>
+        <option value="Epoch 2">Classical</option>
+        <option value="Epoch 3">Early-20th</option>
+        {/* Add more epoch options*/}
+      </select>
+
+      <select
         value={difficulty}
         onChange={handleDifficultyChange}
-        placeholder="Difficulty"
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <input
-        type="text"
-        value={signatureKey}
-        onChange={handleSignatureKeyChange}
-        placeholder="Signature Key"
-        className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <button
-        type="submit"
-        className="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2 sm:mt-0"
       >
-        Filter
-      </button>
+        <option value="">Select Difficulty</option>
+        <option value="Easy">Easy (1-3)</option>
+        <option value="Medium">Medium (4-6)</option>
+        <option value="Hard">Hard (7-9)</option>
+        {/* Add more difficulty options*/}
+      </select>
     </form>
   );
+};
+
+const ListExplorer = ({pieces}) => {
+  const router = useRouter()
+  const [selectedPiece, setSelectedPiece] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
+  
+  const handlePieceSelection = (piece) => {
+    setSelectedPiece(piece);
+    router.push(`/pieces/${piece.id}`);
+  };
+
+  const lastIndex = currentPage * itemsPerPage;
+  const firstIndex = lastIndex - itemsPerPage;
+  const displayedPieces = Array.isArray(pieces) ? pieces.slice(firstIndex, lastIndex) : [];
+  const totalPages = Math.ceil(pieces.length / itemsPerPage);
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+  };
+
+  return <div className={'items-center w-5/6'}>
+    <ul>
+      {displayedPieces.map((piece) => (
+        <li key={piece.id}>
+          <div className={`my-5 border p-4 rounded-md hover:bg-gray-100 ${selectedPiece === null? '' : '' }`}onClick={() => handlePieceSelection(piece)} >
+            <div className={'ml-2 text-sm font-medium text-gray-600'}>{piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}</div>
+            <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <div className="flex justify-center mt-4">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button key={index} className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'}`} onClick={() => goToPage(index + 1)}>
+            {index + 1}
+          </button>
+        ))}
+    </div>
+  </div>
 }
 
 const SelectedPieceCard = ({ selectedPiece }) => {
@@ -172,29 +215,29 @@ export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
-
-  //const [searchFilter, setSearchFilter] = useState({
-  //  author: '',
-  // name: '',
-  //  epoch: '',
-  // difficulty: '',
-  //  signatureKey: ''
-  //});
+  const [searchFilter, setSearchFilter] = useState(null);
 
   useEffect(() => {
     fetch(`${API_HOST}/pieces`).then(r => r.json()).then(r => setPieces(r['array']))
   }, []); 
 
-  const handleSearch = (id) => {
-    const piece = pieces.find((p) => p.id === id);
+
+  const handleSearch = (title) => {
+    const piece = pieces.find((p) => (p.title === title));
     setSearchResult(piece ? { title: piece.title, period: piece.period, author: piece.author } : null);
   };
 
-  //const handleFilterChange = (event) => {
-  //  setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
-  // };
+  const handleFilterChange = (event) => {
+    setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
+  };
 
-  return (
+   const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    //Store PDF in folder to be read with OMR
+    console.log("Uploaded file:", file);
+  };
+
+   return (
     <>
       <Head>
         <title>Can I Play It?</title>
@@ -206,24 +249,26 @@ export default function Home() {
         <div>
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
         </div>
+        <div className="absolute top-0 right-0 mt-2 mr-2">
+          <label htmlFor="file-upload">
+            <span className="text-sm font-medium text-gray-600 cursor-pointer">Upload PDF</span>    
+            <input id="file-upload" type="file" accept=".pdf" onChange={handleFileUpload} className="hidden"/>
+          </label>
+        </div>
         <div className="flex justify-center">
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          {searchResult && (
-            <div >
-              <p className="w-64 px-4 py-2 font-medium text-lg text-black bg-white focus:outline-none focus:ring focus:ring-blue-300" >
-                {searchResult.title}</p>
-              <p className="w-64 px-4 py-2 text-black bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300">
-                {searchResult.author}</p>
-              <p className="w-64 px-4 py-2 text-black bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300">
-                {searchResult.period}</p>
-            </div>
-          )}
+          <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
         </div>
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
             <GraphExplorer pieces={pieces} />
+          </div>
+        )}
+        {!mapMode && (
+          <div className="flex justify-center">
+            <ListExplorer pieces={searchResult ? [searchResult] : pieces} />
           </div>
         )}
       </main>
