@@ -75,8 +75,17 @@ const SearchFilter = ({ setFilters }) => {
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       >
         <option value="">Select Author</option>
-        <option value="Author 1">Author 1</option>
-        <option value="Author 2">Author 2</option>
+        <option value="Author 1">Anna Magdalena Bach</option>
+        <option value="Author 2">Bartók, Béla</option>
+        <option value="Author 3">Chopin, Frédéric</option>
+        <option value="Author 4">Clementi, Muzio</option>
+        <option value="Author 5">Dunhill, Thomas</option>
+        <option value="Author 6">Falla, Manuel de</option>
+        <option value="Author 7">Grechaninov, Aleksandr</option>
+        <option value="Author 8">Kalinnikov, Vasily</option>
+        <option value="Author 9">Maykapar, Samuil</option>
+        <option value="Author 10">Reinecke, Carl</option>
+        <option value="Author 11">Thompson, John Sylvanus</option>
       </select>
 
       <select
@@ -85,9 +94,9 @@ const SearchFilter = ({ setFilters }) => {
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       >
         <option value="">Select Epoch</option>
-        <option value="Epoch 1">Romantic</option>
-        <option value="Epoch 2">Classical</option>
-        <option value="Epoch 3">Early-20th</option>
+        <option value="romantic">Romantic</option>
+        <option value="classical">Classical</option>
+        <option value="early-20th">Early-20th</option>
       </select>
 
       <select
@@ -119,8 +128,8 @@ const ListExplorer = ({ pieces, filter }) => {
   const firstIndex = lastIndex - itemsPerPage;
 
   // Apply the period filter
-  const filteredPieces = filter?.epoch
-    ? pieces.filter((piece) => piece.period === filter.epoch)
+  const filteredPieces = filter?.period
+    ? pieces.filter((piece) => piece.period === filter.period)
     : pieces;
 
   const displayedPieces = filteredPieces.slice(firstIndex, lastIndex);
@@ -258,8 +267,8 @@ export default function Home() {
     setSearchFilter({ ...searchFilter, [name]: value });
   };
 
-  const filteredPieces = searchFilter?.epoch
-    ? pieces.filter((piece) => piece.period === searchFilter.epoch)
+  const filteredPieces = searchFilter?.period
+    ? pieces.filter((piece) => piece.period === searchFilter.period)
     : pieces;
 
    const handleFileUpload = (event) => {
