@@ -49,7 +49,6 @@ const SearchFilter = ({ setFilters }) => {
   const [author, setAuthor] = useState("");
   const [epoch, setEpoch] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [signatureKey, setSignatureKey] = useState("");
 
   const handleAuthorChange = (event) => {
     setAuthor(event.target.value);
@@ -61,10 +60,6 @@ const SearchFilter = ({ setFilters }) => {
 
   const handleDifficultyChange = (event) => {
     setDifficulty(event.target.value);
-  };
-
-  const handleSignatureKeyChange = (event) => {
-    setSignatureKey(event.target.value);
   };
 
   const handleSubmit = (event) => {
@@ -82,7 +77,6 @@ const SearchFilter = ({ setFilters }) => {
         <option value="">Select Author</option>
         <option value="Author 1">Author 1</option>
         <option value="Author 2">Author 2</option>
-        {/* Add more author options*/}
       </select>
 
       <select
@@ -94,7 +88,6 @@ const SearchFilter = ({ setFilters }) => {
         <option value="Epoch 1">Romantic</option>
         <option value="Epoch 2">Classical</option>
         <option value="Epoch 3">Early-20th</option>
-        {/* Add more epoch options*/}
       </select>
 
       <select
@@ -106,18 +99,17 @@ const SearchFilter = ({ setFilters }) => {
         <option value="Easy">Easy (1-3)</option>
         <option value="Medium">Medium (4-6)</option>
         <option value="Hard">Hard (7-9)</option>
-        {/* Add more difficulty options*/}
       </select>
     </form>
   );
 };
 
-const ListExplorer = ({pieces}) => {
-  const router = useRouter()
+const ListExplorer = ({ pieces, filter }) => {
+  const router = useRouter();
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
-  
+
   const handlePieceSelection = (piece) => {
     setSelectedPiece(piece);
     router.push(`/pieces/${piece.id}`);
@@ -125,33 +117,54 @@ const ListExplorer = ({pieces}) => {
 
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
-  const displayedPieces = Array.isArray(pieces) ? pieces.slice(firstIndex, lastIndex) : [];
-  const totalPages = Math.ceil(pieces.length / itemsPerPage);
+
+  // Apply the period filter
+  const filteredPieces = filter?.epoch
+    ? pieces.filter((piece) => piece.period === filter.epoch)
+    : pieces;
+
+  const displayedPieces = filteredPieces.slice(firstIndex, lastIndex);
+  const totalPages = Math.ceil(filteredPieces.length / itemsPerPage);
 
   const goToPage = (page) => {
     setCurrentPage(page);
   };
 
-  return <div className={'items-center w-5/6'}>
-    <ul>
-      {displayedPieces.map((piece) => (
-        <li key={piece.id}>
-          <div className={`my-5 border p-4 rounded-md hover:bg-gray-100 ${selectedPiece === null? '' : '' }`}onClick={() => handlePieceSelection(piece)} >
-            <div className={'ml-2 text-sm font-medium text-gray-600'}>{piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}</div>
-            <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
-          </div>
-        </li>
-      ))}
-    </ul>
-    <div className="flex justify-center mt-4">
+  return (
+    <div className={'items-center w-5/6'}>
+      <ul>
+        {displayedPieces.map((piece) => (
+          <li key={piece.id}>
+            <div
+              className={`my-5 border p-4 rounded-md hover:bg-gray-100 ${
+                selectedPiece === null ? '' : ''
+              }`}
+              onClick={() => handlePieceSelection(piece)}
+            >
+              <div className={'ml-2 text-sm font-medium text-gray-600'}>
+                {piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}
+              </div>
+              <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="flex justify-center mt-4">
         {Array.from({ length: totalPages }, (_, index) => (
-          <button key={index} className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'}`} onClick={() => goToPage(index + 1)}>
+          <button
+            key={index}
+            className={`mx-1 px-3 py-1 rounded-md ${
+              currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'
+            }`}
+            onClick={() => goToPage(index + 1)}
+          >
             {index + 1}
           </button>
         ))}
+      </div>
     </div>
-  </div>
-}
+  );
+};
 
 const SelectedPieceCard = ({ selectedPiece }) => {
   const router = useRouter()
@@ -214,22 +227,40 @@ export const GraphExplorer = ({ pieces }) => {
 export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
-  const [searchResult, setSearchResult] = useState(null);
+  const [searchResult, setSearchResult] = useState([]);
   const [searchFilter, setSearchFilter] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_HOST}/pieces`).then(r => r.json()).then(r => setPieces(r['array']))
-  }, []); 
+    fetch(`${API_HOST}/pieces`)
+      .then((response) => response.json())
+      .then((data) => setPieces(data.array))
+      .catch((error) => console.log(error));
+  }, []);
 
 
-  const handleSearch = (title) => {
-    const piece = pieces.find((p) => (p.title === title));
-    setSearchResult(piece ? { title: piece.title, period: piece.period, author: piece.author } : null);
+  const handleSearch = (searchTerm) => {
+    const filteredPieces = pieces.filter((piece) => {
+      const { title, period, author } = piece;
+      const searchLower = searchTerm.toLowerCase();
+      // Check if the search term is present in the title, period, or author
+      return (
+        title.toLowerCase().includes(searchLower) ||
+        period.toLowerCase().includes(searchLower) ||
+        author.toLowerCase().includes(searchLower)
+      );
+    });
+  
+    setSearchResult(filteredPieces);
   };
 
   const handleFilterChange = (event) => {
-    setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    setSearchFilter({ ...searchFilter, [name]: value });
   };
+
+  const filteredPieces = searchFilter?.epoch
+    ? pieces.filter((piece) => piece.period === searchFilter.epoch)
+    : pieces;
 
    const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -237,7 +268,7 @@ export default function Home() {
     console.log("Uploaded file:", file);
   };
 
-   return (
+  return (
     <>
       <Head>
         <title>Can I Play It?</title>
@@ -251,8 +282,16 @@ export default function Home() {
         </div>
         <div className="absolute top-0 right-0 mt-2 mr-2">
           <label htmlFor="file-upload">
-            <span className="text-sm font-medium text-gray-600 cursor-pointer">Upload PDF</span>    
-            <input id="file-upload" type="file" accept=".pdf" onChange={handleFileUpload} className="hidden"/>
+            <span className="text-sm font-medium text-gray-600 cursor-pointer">
+              Upload PDF
+            </span>
+            <input
+              id="file-upload"
+              type="file"
+              accept=".pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
           </label>
         </div>
         <div className="flex justify-center">
@@ -268,7 +307,7 @@ export default function Home() {
         )}
         {!mapMode && (
           <div className="flex justify-center">
-            <ListExplorer pieces={searchResult ? [searchResult] : pieces} />
+            <ListExplorer pieces={searchResult.length > 0 ? searchResult : filteredPieces} />
           </div>
         )}
       </main>
