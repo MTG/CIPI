@@ -46,16 +46,16 @@ const SearchBar = ({ onSearch }) => {
 };
 
 const SearchFilter = ({ setFilters }) => {
-  const [author, setAuthor] = useState("");
-  const [epoch, setEpoch] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [period, setPeriod] = useState("");
   const [difficulty, setDifficulty] = useState("");
 
-  const handleAuthorChange = (event) => {
-    setAuthor(event.target.value);
+  const handleNationalityChange = (event) => {
+    setNationality(event.target.value);
   };
 
-  const handleEpochChange = (event) => {
-    setEpoch(event.target.value);
+  const handlePeriodChange = (event) => {
+    setPeriod(event.target.value);
   };
 
   const handleDifficultyChange = (event) => {
@@ -64,36 +64,25 @@ const SearchFilter = ({ setFilters }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ author, epoch, difficulty, signatureKey });
+    setFilters({ nationality, period, difficulty });
   };
 
   return (
     <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
       <select
-        value={author}
-        onChange={handleAuthorChange}
+        value={nationality}
+        onChange={handleNationalityChange}
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       >
-        <option value="">Select Author</option>
-        <option value="Author 1">Anna Magdalena Bach</option>
-        <option value="Author 2">Bartók, Béla</option>
-        <option value="Author 3">Chopin, Frédéric</option>
-        <option value="Author 4">Clementi, Muzio</option>
-        <option value="Author 5">Dunhill, Thomas</option>
-        <option value="Author 6">Falla, Manuel de</option>
-        <option value="Author 7">Grechaninov, Aleksandr</option>
-        <option value="Author 8">Kalinnikov, Vasily</option>
-        <option value="Author 9">Maykapar, Samuil</option>
-        <option value="Author 10">Reinecke, Carl</option>
-        <option value="Author 11">Thompson, John Sylvanus</option>
+        <option value="">Select Nationality</option>
       </select>
 
       <select
-        value={epoch}
-        onChange={handleEpochChange}
+        value={period}
+        onChange={handlePeriodChange}
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       >
-        <option value="">Select Epoch</option>
+        <option value="">Select Period</option>
         <option value="romantic">Romantic</option>
         <option value="classical">Classical</option>
         <option value="early-20th">Early-20th</option>
