@@ -2,6 +2,10 @@
 1. Use Linux (optional, but recommended)
 > If you have Windows, you can use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) 
 
+- you must install https://imagemagick.org/script/download.php for processing the pdf
+- and downdload from the gdrive the models folder and put it in the backend folder
+- pip install -r requeriments.txt
+
 2. Ensure you have Python 3.8 or later installed
 ```bash
 python3 -V
@@ -23,7 +27,13 @@ pip3 install -r requirements.txt
 
 ```bash
 cd backend
+export ENV=dev
 flask --app api/index run --reload
+```
+
+# Install the requirements to run the GPT model
+```bash
+pip3 install -r requirements-dev.txt
 ```
 
 # Run (with Vercel)
