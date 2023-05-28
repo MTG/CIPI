@@ -12,7 +12,6 @@ importlib-metadata==6.6.0
 itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.2
-pkg_resources==0.0.0
 psycopg2==2.9.6
 psycopg2-binary==2.9.6
 pyasn1==0.5.0
