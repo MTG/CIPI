@@ -85,7 +85,9 @@ with open(csv_file_name, 'rb') as f:
     next(f) 
     cursor.copy_from(f, 'musicsheet', sep='$', columns=('url', 'work_title', 'alternative_title', 'composer', 'number_op', 'i_catalog', '_key', 'movements', 'composition_date', 'first_performance', 'first_publication', 'dedication', 'composer_period', 'piece_style', 'instrumentation', 'difficulty_predicted', 'latent_map', 'duration', 'extra_info', 'external_links', 'related_works', 'copyright', 'primary_sources', 'discography', 'translations', 'authorities', 'extra_locations', '_language', 'name_aliases', 'related_pages', 'librettist'))
 
-
+cursor.execute('''DELETE FROM musicsheet
+WHERE difficulty_predicted='';
+''')
 
 conn.commit()
 cursor.close()
