@@ -4,7 +4,7 @@ from .login import with_login
 import os
 from dotenv import load_dotenv
 import sys
-from ..repository.pieces import get_pieces 
+from .repository.pieces import get_pieces 
 
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
 load_dotenv(".env")
