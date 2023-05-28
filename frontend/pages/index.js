@@ -101,7 +101,7 @@ const SearchFilter = ({ setFilters }) => {
     </form>
   );
 }
-const ListExplorer = ({pieces}) => {
+const ListExplorer = ({pieces, filter }) => {
   const router = useRouter()
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -290,7 +290,7 @@ export default function Home() {
         )}
         {!mapMode && (
           <div className="flex justify-center">
-            <ListExplorer pieces={searchResult.length > 0 ? searchResult : filteredPieces} />
+            <ListExplorer pieces={searchResult.length > 0 ? searchResult : filteredPieces} filter={searchFilter} />
           </div>
         )}
       </main>
