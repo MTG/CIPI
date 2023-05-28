@@ -27,7 +27,13 @@ pip3 install -r requirements.txt
 
 ```bash
 cd backend
+export ENV=dev
 flask --app api/index run --reload
+```
+
+# Install the requirements to run the GPT model
+```bash
+pip3 install -r requirements-dev.txt
 ```
 
 # Run (with Vercel)
