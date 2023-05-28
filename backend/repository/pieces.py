@@ -3,14 +3,17 @@ import json
 
 
 def get_pieces():
+    print(1)
     with database() as cursor:
+        print(11)
         # Ejecutar una consulta para obtener los valores de la tabla
         cursor.execute('SELECT * FROM musicsheet')
         # Obtener los nombres de las columnas
         columns = [desc[0] for desc in cursor.description]
         # Obtener todos los registros de la tabla
         rows = cursor.fetchall()
-    
+        print(22)
+    print(2)
     # Crear un diccionario para almacenar los valores de la tabla
     result = []
     for row in rows:
