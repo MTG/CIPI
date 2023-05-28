@@ -3,8 +3,21 @@ from flask_cors import CORS
 from .login import with_login
 import os
 from dotenv import load_dotenv
-load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
+import sys
+import psycopg2
 
+
+load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
+load_dotenv(".env")
+
+conn = psycopg2.connect(database=os.getenv("DATABASE_NAME"),
+                        host=os.getenv("DATABASE_HOST"),
+                        user=os.getenv("DATABASE_USER"),
+                        password=os.getenv("DATABASE_PASSWORD"),
+                        port=os.getenv("DATABASE_PORT"),
+                        sslmode=os.getenv("DATABASE_SSLMODE"))
+
+cursor = conn.cursor()
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +30,24 @@ def home():
 @app.route('/api/test')
 def about():
     return jsonify({ "hello": "world" })
+
+# Ejecutar una consulta para obtener los valores de la tabla
+cursor.execute('SELECT * FROM musicsheet')
+# Obtener los nombres de las columnas
+columns = [desc[0] for desc in cursor.description]
+# Obtener todos los registros de la tabla
+rows = cursor.fetchall()
+
+# Cerrar el cursor y la conexion a la base de datos
+cursor.close()
+conn.close()
+# Crear un diccionario para almacenar los valores de la tabla
+result = []
+for row in rows:
+    row_dict = {}
+    for i in range(len(columns)):
+        row_dict[columns[i]] = row[i]
+    result.append(row_dict)
 
 
 MOCK_PIECES = [
