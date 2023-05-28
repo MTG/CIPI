@@ -12,6 +12,7 @@ const MapModeToggle = ({mapMode, setMapMode}) => {
   </label>;
 }
 
+
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
 
@@ -31,7 +32,7 @@ const SearchBar = ({ onSearch }) => {
         type="text"
         value={query}
         onChange={handleInputChange}
-        placeholder="Search for a piece by id"
+        placeholder="Search a piece or author"
         className="w-64 px-4 py-2 text-gray-900 bg-gray-100 rounded-l-md focus:outline-none focus:ring focus:ring-blue-300"
       />
       <button
@@ -45,67 +46,58 @@ const SearchBar = ({ onSearch }) => {
 };
 
 const SearchFilter = ({ setFilters }) => {
-  const [author, setAuthor] = useState("");
-  const [epoch, setEpoch] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [period, setPeriod] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [signatureKey, setSignatureKey] = useState("");
 
-  const handleAuthorChange = (event) => {
-    setAuthor(event.target.value);
+  const handleNationalityChange = (event) => {
+    setNationality(event.target.value);
   };
-  const handleEpochChange = (event) => {
-    setEpoch(event.target.value);
+
+  const handlePeriodChange = (event) => {
+    setPeriod(event.target.value);
   };
 
   const handleDifficultyChange = (event) => {
     setDifficulty(event.target.value);
   };
 
-  const handleSignatureKeyChange = (event) => {
-    setSignatureKey(event.target.value);
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ author, epoch, difficulty, signatureKey });
+    setFilters({ nationality, period, difficulty });
   };
 
   return (
     <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={author}
-        onChange={handleAuthorChange}
-        placeholder="Author"
+      <select
+        value={nationality}
+        onChange={handleNationalityChange}
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <input
-        type="text"
-        value={epoch}
-        onChange={handleEpochChange}
-        placeholder="Epoch"
+      >
+        <option value="">Select Nationality</option>
+      </select>
+
+      <select
+        value={period}
+        onChange={handlePeriodChange}
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <input
-        type="text"
+      >
+        <option value="">Select Period</option>
+        <option value="romantic">Romantic</option>
+        <option value="classical">Classical</option>
+        <option value="early-20th">Early-20th</option>
+      </select>
+
+      <select
         value={difficulty}
         onChange={handleDifficultyChange}
-        placeholder="Difficulty"
         className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <input
-        type="text"
-        value={signatureKey}
-        onChange={handleSignatureKeyChange}
-        placeholder="Signature Key"
-        className="px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      />
-      <button
-        type="submit"
-        className="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2 sm:mt-0"
       >
-        Filter
-      </button>
+        <option value="">Select Difficulty</option>
+        <option value="Easy">Easy (1-3)</option>
+        <option value="Medium">Medium (4-6)</option>
+        <option value="Hard">Hard (7-9)</option>
+      </select>
     </form>
   );
 }
@@ -122,8 +114,14 @@ const ListExplorer = ({pieces}) => {
 
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
-  const displayedPieces = Array.isArray(pieces) ? pieces.slice(firstIndex, lastIndex) : [];
-  const totalPages = Math.ceil(pieces.length / itemsPerPage);
+
+  // Apply the period filter
+  const filteredPieces = filter?.period
+    ? pieces.filter((piece) => piece.period === filter.period)
+    : pieces;
+
+  const displayedPieces = filteredPieces.slice(firstIndex, lastIndex);
+  const totalPages = Math.ceil(filteredPieces.length / itemsPerPage);
 
   const goToPage = (page) => {
     setCurrentPage(page);
@@ -149,6 +147,7 @@ const ListExplorer = ({pieces}) => {
     </div>
   </div>
 }
+
 
 const SelectedPieceCard = ({ selectedPiece }) => {
   const router = useRouter()
@@ -211,28 +210,46 @@ export const GraphExplorer = ({ pieces }) => {
 export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
-  const [searchResult, setSearchResult] = useState(null);
-
-  //const [searchFilter, setSearchFilter] = useState({
-  //  author: '',
-  // name: '',
-  //  epoch: '',
-  // difficulty: '',
-  //  signatureKey: ''
-  //});
+  const [searchResult, setSearchResult] = useState([]);
+  const [searchFilter, setSearchFilter] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_HOST}/pieces`).then(r => r.json()).then(r => setPieces(r['array']))
-  }, []); 
+    fetch(`${API_HOST}/pieces`)
+      .then((response) => response.json())
+      .then((data) => setPieces(data.array))
+      .catch((error) => console.log(error));
+  }, []);
 
-  const handleSearch = (id) => {
-    const piece = pieces.find((p) => p.id === id);
-    setSearchResult(piece ? { title: piece.title, period: piece.period, author: piece.author } : null);
+
+  const handleSearch = (searchTerm) => {
+    const filteredPieces = pieces.filter((piece) => {
+      const { title, period, author } = piece;
+      const searchLower = searchTerm.toLowerCase();
+      // Check if the search term is present in the title, period, or author
+      return (
+        title.toLowerCase().includes(searchLower) ||
+        period.toLowerCase().includes(searchLower) ||
+        author.toLowerCase().includes(searchLower)
+      );
+    });
+  
+    setSearchResult(filteredPieces);
   };
 
-  //const handleFilterChange = (event) => {
-  //  setSearchFilter({ ...searchFilter, [event.target.name]: event.target.value });
-  // };
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+    setSearchFilter({ ...searchFilter, [name]: value });
+  };
+
+  const filteredPieces = searchFilter?.period
+    ? pieces.filter((piece) => piece.period === searchFilter.period)
+    : pieces;
+
+   const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    //Store PDF in folder to be read with OMR
+    console.log("Uploaded file:", file);
+  };
 
   return (
     <>
@@ -246,29 +263,36 @@ export default function Home() {
         <div>
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
         </div>
+        <div className="absolute top-0 right-0 mt-2 mr-2">
+          <label htmlFor="file-upload">
+            <span className="text-sm font-medium text-gray-600 cursor-pointer">
+              Upload PDF
+            </span>
+            <input
+              id="file-upload"
+              type="file"
+              accept=".pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </label>
+        </div>
         <div className="flex justify-center">
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          {searchResult && (
-            <div >
-              <p className="w-64 px-4 py-2 font-medium text-lg text-black bg-white focus:outline-none focus:ring focus:ring-blue-300" >
-                {searchResult.title}</p>
-              <p className="w-64 px-4 py-2 text-black bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300">
-                {searchResult.author}</p>
-              <p className="w-64 px-4 py-2 text-black bg-gray-100 focus:outline-none focus:ring focus:ring-blue-300">
-                {searchResult.period}</p>
-            </div>
-          )}
+          <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
         </div>
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
             <GraphExplorer pieces={pieces} />
           </div>
         )}
-        { !mapMode && <div className="flex justify-center">
-          <ListExplorer pieces={pieces} />
-        </div> }
+        {!mapMode && (
+          <div className="flex justify-center">
+            <ListExplorer pieces={searchResult.length > 0 ? searchResult : filteredPieces} />
+          </div>
+        )}
       </main>
     </>
   );
