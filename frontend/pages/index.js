@@ -188,8 +188,9 @@ function mapRange(value, fromMin, fromMax, toMin, toMax) {
 
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
-  const getPieceColor = ({piece, isHovered, isSelected }) => {
-    const mappedDifficulty = 1-mapRange((piece.difficulty.x1+piece.difficulty.x2)/2, 0, 1, 0.2, 0.7);
+  const getPieceColor = ({ piece, isHovered, isSelected }) => {
+    const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
+
     if (isSelected) return '#dc2626';
     if (isHovered) return grayscaleHex(mappedDifficulty-0.2);
     return grayscaleHex(mappedDifficulty);
