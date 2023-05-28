@@ -206,6 +206,17 @@ export const GraphExplorer = ({ pieces }) => {
           </div>
 }
 
+const getProtectedEndpointDemo = async (credential) => {
+  const response = await fetch(`${API_HOST}/api/demoAuth`, 
+    {
+      headers: {
+        Authentication: `Bearer ${credential}`
+      }
+    }
+  );
+  const body = await response.json();
+  return body;
+}
 
 export default function Home() {
   const [pieces, setPieces] = useState([]);
@@ -251,6 +262,22 @@ export default function Home() {
     console.log("Uploaded file:", file);
   };
 
+  const { requireLogin, credential } = useContext(AuthContext);
+  // demo calling an endpoint that needs login
+  useEffect(() => {
+    if (credential === null) return;
+    getProtectedEndpointDemo(credential).then(r => console.log(r))
+  }, [credential])
+
+  // example of how to use the login
+  useEffect(() => {
+    let timer = window.setTimeout(() => {
+      if (mapMode === true) requireLogin({ allowSkip: true, skipTimeoutSeconds: 60 })
+    }, 1000);
+  
+    return () => window.clearTimeout(timer);
+  }, [mapMode])
+
   return (
     <>
       <Head>
@@ -283,6 +310,7 @@ export default function Home() {
         <div className="flex justify-center">
           <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
         </div>
+
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
             <GraphExplorer pieces={pieces} />
