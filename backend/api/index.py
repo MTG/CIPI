@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import sys
 from .repository.pieces import get_pieces 
 
+
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
 load_dotenv(".env")
 
@@ -17,12 +18,17 @@ CORS(app)
 def home():
     return 'Hello, World 4!'
 
-
 @app.get('/api/pieces')
 def pieces():
+    args = request.args
+    size=int(args.get("size"))
+    page=int(args.get("page"))
+    pieces, pages_count = get_pieces(size, page)
     return jsonify({ 
-       "_links": {},
-        "array": get_pieces()
+         "_links": {
+            "total_pages": pages_count
+        },
+        "array": pieces
     })
 
 
