@@ -4,7 +4,7 @@ from .login import with_login
 import os
 from dotenv import load_dotenv
 import sys
-from .repository.pieces import get_pieces 
+from .repository.pieces import get_pieces, get_pieces_id 
 
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
 load_dotenv(".env")
@@ -34,4 +34,13 @@ def demo_auth(user):
     return jsonify({ 
         "some": "data",
         "user": user
+    })
+
+@app.get('/api/pieces/<id>')
+def pieces_id(id):
+    args = request.args
+    id=int(args.get("id"))
+    data= get_pieces_id(id)
+    return jsonify({ 
+        "data": data
     })
