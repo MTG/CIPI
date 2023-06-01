@@ -95,51 +95,108 @@ const SearchFilter = ({ setFilters }) => {
     </form>
   );
 }
+
 const ListExplorer = ({ pieces, filter }) => {
-  const router = useRouter()
+  const router = useRouter();
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 7;
+  const pagesPerSet = 10; // Number of pages per set
+  const totalPages = Math.ceil(pieces.length / itemsPerPage);
 
   const handlePieceSelection = (piece) => {
     setSelectedPiece(piece);
     router.push(`/pieces/${piece.id}`);
   };
 
+  // Apply the period filter
+  const filteredPieces = filter?.period
+    ? pieces.filter((piece) => piece.period === filter.period)
+    : pieces;
+
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
-  
-   // Apply the period filter
-   const filteredPieces = filter?.period
-   ? pieces.filter((piece) => piece.period === filter.period)
-   : pieces;
 
- const displayedPieces = filteredPieces.slice(firstIndex, lastIndex);
- const totalPages = Math.ceil(filteredPieces.length / itemsPerPage);
+  const displayedPieces = filteredPieces.slice(firstIndex, lastIndex);
 
   const goToPage = (page) => {
     setCurrentPage(page);
   };
 
-  return <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
-    <ul className="flex-1 overflow-y-auto">
-      {displayedPieces.map((piece) => (
-        <li key={piece.id}>
-          <div className={`my-5 border p-4 rounded-md hover:bg-gray-100 cursor-pointer ${selectedPiece === null ? '' : ''}`} onClick={() => handlePieceSelection(piece)} >
-            <div className={'ml-2 text-sm font-medium text-gray-600'}>{piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}</div>
-            <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
-          </div>
-        </li>
-      ))}
-    </ul>
-    <div className="flex justify-center mt-4">
-      {Array.from({ length: totalPages }, (_, index) => (
-        <button key={index} className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'}`} onClick={() => goToPage(index + 1)}>
-          {index + 1}
+  const renderPageButtons = () => {
+    const currentPageSet = Math.ceil(currentPage / pagesPerSet);
+    const lastPageSet = Math.ceil(totalPages / pagesPerSet);
+
+    const startPage = (currentPageSet - 1) * pagesPerSet + 1;
+    const endPage = Math.min(startPage + pagesPerSet - 1, totalPages);
+
+    const buttons = [];
+
+    for (let page = startPage; page <= endPage; page++) {
+      buttons.push(
+        <button
+          key={page}
+          className={`mx-1 px-3 py-1 rounded-md ${
+            currentPage === page ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'
+          }`}
+          onClick={() => goToPage(page)}
+        >
+          {page}
         </button>
-      ))}
+      );
+    }
+
+    if (currentPageSet > 1) {
+      buttons.unshift(
+        <button
+          key="prevSet"
+          className="mx-1 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200"
+          onClick={() => goToPage(startPage - 1)}
+        >
+          Prev
+        </button>
+      );
+    }
+
+    if (currentPageSet < lastPageSet) {
+      buttons.push(
+        <button
+          key="nextSet"
+          className="mx-1 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200"
+          onClick={() => goToPage(endPage + 1)}
+        >
+          Next
+        </button>
+      );
+    }
+
+    return buttons;
+  };
+
+  return (
+    <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
+      <ul className="w-3/4 flex-1 overflow-y-auto">
+        {displayedPieces.map((piece) => (
+          <li key={piece.id}>
+            <div
+              className={`my-5 border p-4 rounded-md hover:bg-gray-100 cursor-pointer ${
+                selectedPiece === null ? '' : ''
+              }`}
+              onClick={() => handlePieceSelection(piece)}
+            >
+              <div className={'ml-2 text-sm font-medium text-gray-600'}>
+                {piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}
+              </div>
+              <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div className="flex justify-center mt-4">
+        {renderPageButtons()}
+      </div>
     </div>
-  </div>
+  );
 }
 
 const SelectedPieceCard = ({ selectedPiece }) => {
@@ -221,10 +278,8 @@ export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
-
   const [searchFilter, setSearchFilter] = useState({
-    author: '',
-    name: '',
+    nationality: '',
     epoch: '',
     difficulty: ''
   });
