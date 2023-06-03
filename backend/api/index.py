@@ -23,7 +23,8 @@ def pieces():
     args = request.args
     size=int(args.get("size"))
     page=int(args.get("page"))
-    pieces, pages_count = get_pieces(size, page)
+    value=args.get("value")
+    pieces, pages_count = get_pieces(size, page,value)
     return jsonify({ 
          "_links": {
             "total_pages": pages_count

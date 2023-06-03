@@ -28,9 +28,8 @@ def database():
         print(7)
         yield cursor
         print(8)
-    except e:
-        print(8)
-        print(e)
+    except :
+       
         raise
     finally:
         cursor.close()
