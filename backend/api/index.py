@@ -1,10 +1,10 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from .login import with_login
+from backend.login import with_login
 import os
 from dotenv import load_dotenv
-import sys
-from .repository.pieces import get_pieces 
+from backend.repository.pieces import get_pieces 
+from backend.clients.pdf_difficulty_service import get_difficulty
 
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
 load_dotenv(".env")
