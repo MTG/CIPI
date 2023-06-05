@@ -26,12 +26,24 @@ def pieces():
     })
 
 
-
-@app.get('/api/demoAuth')  # only for demostration purposes
+@app.post('/api/pieces')
 @with_login
-def demo_auth(user):
-    print(user)
+def new_piece(user):
+    print(f"{user.email} uploaded a file")
+    score_file = request.files.get('score')
+    difficulty = get_difficulty(score_file)
     return jsonify({ 
-        "some": "data",
+        "data": {
+            "difficulty": difficulty,
+            "pieces": get_pieces()  # todo limit results and get only neighbours
+        }
+    })
+
+
+@app.post('/auth')
+@with_login
+def auth(user):
+    return jsonify({
         "user": user
     })
+

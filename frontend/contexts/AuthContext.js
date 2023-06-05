@@ -11,6 +11,23 @@ export const AuthContext = createContext(DEFAULT_CONTEXT);
 
 const SESSION_CREDENTIAL_KEY = "gid_credential"
 
+const isTokenValid = async (credential) => {
+  if (credential === null || credential === undefined) return false;
+  try {
+    const response = await fetch(`${API_HOST}/auth`, 
+      {
+        method: 'POST',
+        headers: {
+          Authentication: `Bearer ${credential}`
+        }
+      }
+    );
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export const AuthContextProvider = ({ children, oneTapEnabled = true }) => {
   const [credential, setCredential] = useState(null)
 
@@ -18,36 +35,39 @@ export const AuthContextProvider = ({ children, oneTapEnabled = true }) => {
     const sessionCredential = sessionStorage.getItem(SESSION_CREDENTIAL_KEY)
 
     const script = document.createElement("script");
-    if (sessionCredential === null || sessionCredential === undefined){
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.onload = () => {
-        console.debug("GOOGLE_AUTH_CLIENT_ID", process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID)
-        window.google.accounts.id.initialize({
-            client_id: process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID,
-            auto_select: true,
-            callback: function(res){
-                console.log("Google flow callback received.")
-                if (!res.clientId || !res.credential || res.clientId !== process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID) {
-                    console.error("Invalid response after Google Sign In flow.")
-                    return
+    isTokenValid(sessionCredential).then(isValid => {
+      if (!isValid){
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.onload = () => {
+          console.debug("GOOGLE_AUTH_CLIENT_ID", process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID)
+          window.google.accounts.id.initialize({
+              client_id: process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID,
+              auto_select: true,
+              callback: function(res){
+                  console.log("Google flow callback received.")
+                  if (!res.clientId || !res.credential || res.clientId !== process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID) {
+                      console.error("Invalid response after Google Sign In flow.")
+                      return
+                  }
+  
+                  setCredential(res.credential)
+                  sessionStorage.setItem(SESSION_CREDENTIAL_KEY, res.credential);
                 }
-
-                setCredential(res.credential)
-                sessionStorage.setItem(SESSION_CREDENTIAL_KEY, res.credential);
-              }
-        });
-
-        window.google.accounts.id.prompt(); // also display the One Tap dialog
+          });
+  
+          window.google.accounts.id.prompt(); // also display the One Tap dialog
+        }
+      } else {
+        setCredential(sessionCredential)
       }
-    } else {
-      setCredential(sessionCredential)
-    }
-
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
+  
+      document.body.appendChild(script);
+      return () => {
+        document.body.removeChild(script);
+      };
+    })
+    
     
     }, [oneTapEnabled])
 
@@ -70,11 +90,12 @@ export const AuthContextProvider = ({ children, oneTapEnabled = true }) => {
     return () => window.clearInterval(timer);
   }, [remainingSkipTimeoutSeconds])
 
-  const requireLogin = ({ allowSkip = false, skipTimeoutSeconds = 10 }) => {
-    if (credential !== null) return;
+  const requireLogin = async ({ allowSkip = false, skipTimeoutSeconds = 10 }) => {
+    if (await isTokenValid(credential)) return true;
     setAllowSkip(allowSkip)
     setRemainintSkipTimeoutSeconds(skipTimeoutSeconds)
     setShowLogin(true)
+    return false
   }
 
   const [context, setContext] = useState({
