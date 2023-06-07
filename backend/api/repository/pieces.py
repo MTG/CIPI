@@ -1,6 +1,7 @@
-from .db import database
+from db import database
 import json
 
+<<<<<<< Updated upstream
 def db_dict(rows, columns, result):
     for row in rows:
             row_dict = {}
@@ -17,6 +18,43 @@ def db_dict(rows, columns, result):
                 },
                 "id": row_dict["musicsheetid"]
             })
+=======
+
+def get_pieces():
+    with database() as cursor:
+        # Execute a query to retrieve the values from the table
+        cursor.execute('SELECT * FROM musicsheet')
+        # Get the names of the columns
+        columns = [desc[0] for desc in cursor.description]
+        # Get all the rows from the table
+        rows = cursor.fetchall()
+    # Create a list to store the values from the table
+    result = []
+    for row in rows:
+        row_dict = {}
+        for i in range(len(columns)):
+            row_dict[columns[i]] = row[i]
+        #print(row_dict)
+        latent_map = json.loads(row_dict["latent_map"])
+        difficulty_predicted = json.loads(row_dict["difficulty_predicted"])
+        
+        result.append({
+            "title": row_dict["work_title"],
+            "period": row_dict["composer_period"],
+            "author": row_dict["composer"],
+            "difficulty": {
+                "x1": latent_map[0],
+                "x2": latent_map[1]
+            },
+            "difficulty_predicted": {
+                "x1": difficulty_predicted[0],
+                "x2": difficulty_predicted[1],
+                "x3": difficulty_predicted[2]
+            },
+            "id": row_dict["musicsheetid"],
+        })
+
+>>>>>>> Stashed changes
     return result
 
 def get_pieces(size, page):
