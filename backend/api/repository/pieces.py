@@ -1,5 +1,5 @@
 from .db import database
-from .filtering_period import filtering_period
+from .filtering_functions import apply_filters
 import json
 
 def db_dict(rows, columns, result):
@@ -20,13 +20,14 @@ def db_dict(rows, columns, result):
             })
     return result
 
-def get_pieces(size, page, filter_value=None):
+def get_pieces(size, page, key=None, period=None):
 
     result = []
     with database() as cursor:
        # Apply filter if a filter_value is provided
-        if filter_value is not None:
-            cursor, total_pages=filtering_period(page, cursor, size, filter_value)
+        if key is not None or period is not None:
+            cursor, total_pages = apply_filters(page, cursor, size, key, period)
+            #cursor, total_pages=filtering_period(page, cursor, size, filter_value)
         else:
             # No filter applied, retrieve all pieces
             cursor.execute('SELECT COUNT(musicsheetid) FROM musicsheet')
