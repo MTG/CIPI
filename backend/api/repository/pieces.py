@@ -1,7 +1,6 @@
-from db import database
+from .db import database
 import json
 
-<<<<<<< Updated upstream
 def db_dict(rows, columns, result):
     for row in rows:
             row_dict = {}
@@ -18,7 +17,6 @@ def db_dict(rows, columns, result):
                 },
                 "id": row_dict["musicsheetid"]
             })
-=======
 
 def get_pieces():
     with database() as cursor:
@@ -54,7 +52,6 @@ def get_pieces():
             "id": row_dict["musicsheetid"],
         })
 
->>>>>>> Stashed changes
     return result
 
 def get_pieces(size, page):
