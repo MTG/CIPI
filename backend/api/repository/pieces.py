@@ -1,4 +1,4 @@
-from db import database
+from .db import database
 import json
 
 def db_dict(rows, columns, result):
