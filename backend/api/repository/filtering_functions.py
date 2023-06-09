@@ -1,5 +1,5 @@
 
-def apply_filters(page, cursor, size, key, period):
+def apply_filters(page, cursor, size, key, period, min_difficulty, max_difficulty):
   
     #eliminate from array the None values and the corresponding column from database
       
@@ -12,7 +12,11 @@ def apply_filters(page, cursor, size, key, period):
     if period is not None:
         query= query + " composer_period= %(period)s AND"
         filtered_values["period"] = period
-    #difficulty
+    if min_difficulty is not None and max_difficulty is not None:
+        query= query + " normalized_difficulty BETWEEN %(min_difficulty)s AND %(max_difficulty)s AND"
+        filtered_values["min_difficulty"] = min_difficulty
+        filtered_values["max_difficulty"] = max_difficulty
+    #difficulty amb una mitja dels 3 valors--> normalitzar i afegir a una columna
     words = query.split()
     words_without_last = words[:-1]  # Exclude the last and
 

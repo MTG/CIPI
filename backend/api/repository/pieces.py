@@ -7,26 +7,26 @@ def db_dict(rows, columns, result):
             row_dict = {}
             for i in range(len(columns)):
                 row_dict[columns[i]] = row[i]
-            latent_map = json.loads(row_dict["latent_map"])
             result.append({
                 "title": row_dict["work_title"],
                 "period": row_dict["composer_period"],
                 "author": row_dict["composer"],
                 "difficulty": {
-                    "x1": latent_map[0],
-                    "x2": latent_map[1]
+                    "x1": row_dict["latent_map_x1"],
+                    "x2": row_dict["latent_map_x2"]
                 },
-                "id": row_dict["musicsheetid"]
+                "id": row_dict["musicsheetid"],
+                "key": row_dict["_key"]
             })
     return result
 
-def get_pieces(size, page, key=None, period=None):
+def get_pieces(size, page, key=None, period=None, min_difficulty=None, max_difficulty=None):
 
     result = []
     with database() as cursor:
        # Apply filter if a filter_value is provided
         if key is not None or period is not None:
-            cursor, total_pages = apply_filters(page, cursor, size, key, period)
+            cursor, total_pages = apply_filters(page, cursor, size, key, period, min_difficulty, max_difficulty)
             #cursor, total_pages=filtering_period(page, cursor, size, filter_value)
         else:
             # No filter applied, retrieve all pieces
