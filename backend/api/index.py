@@ -3,7 +3,7 @@ from flask_cors import CORS
 from ._auth.login import with_login
 import os
 from dotenv import load_dotenv
-from ._repository.pieces import get_pieces 
+from ._repository.pieces import get_pieces, get_pieces_id
 from ._clients.pdf_difficulty_service import get_difficulty
 
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
@@ -47,3 +47,21 @@ def auth(user):
         "user": user
     })
 
+@app.get('/api/pieces/<id>')
+def pieces_id(id):
+    args = request.args
+    id=int(args.get("id"))
+    data= get_pieces_id(id)
+    return jsonify({ 
+        "data": data
+    })
+
+@app.get('/api/pieces/<id>/neighbors')
+def pieces_id_neighbors(id):
+    args = request.args
+    id=int(args.get("id"))
+    size=int(args.get("size"))
+    array_neighbors= get_piece_neighbors(id, size)
+    return jsonify({ 
+        "array": array_neighbors
+    })
