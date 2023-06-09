@@ -36,8 +36,6 @@ dedication VARCHAR(8000),
 composer_period VARCHAR(8000),
 piece_style VARCHAR(8000),
 instrumentation VARCHAR(8000),
-difficulty_predicted VARCHAR(8000) NOT NULL,
-latent_map VARCHAR(8000),
 duration VARCHAR(8000),
 extra_info VARCHAR(8000),
 external_links VARCHAR(8000),
@@ -51,7 +49,12 @@ extra_locations VARCHAR(8000),
 _language VARCHAR(8000),
 name_aliases VARCHAR(8000),
 related_pages VARCHAR(8000),
-librettist VARCHAR(8000)
+librettist VARCHAR(8000),
+difficulty_predicted_x1 VARCHAR(8000) NOT NULL,
+difficulty_predicted_x2 VARCHAR(8000) NOT NULL,
+difficulty_predicted_x3 VARCHAR(8000) NOT NULL,
+latent_map_x1 VARCHAR(8000),
+latent_map_x2 VARCHAR(8000)
 )''')
 
 #user
@@ -83,11 +86,13 @@ csv_file_name = os.path.join(sys.path[0], "only_one_piece.csv")
 
 with open(csv_file_name, 'rb') as f:
     next(f) 
-    cursor.copy_from(f, 'musicsheet', sep='$', columns=('url', 'work_title', 'alternative_title', 'composer', 'number_op', 'i_catalog', '_key', 'movements', 'composition_date', 'first_performance', 'first_publication', 'dedication', 'composer_period', 'piece_style', 'instrumentation', 'difficulty_predicted', 'latent_map', 'duration', 'extra_info', 'external_links', 'related_works', 'copyright', 'primary_sources', 'discography', 'translations', 'authorities', 'extra_locations', '_language', 'name_aliases', 'related_pages', 'librettist'))
+    cursor.copy_from(f, 'musicsheet', sep='$', columns=('url', 'work_title', 'alternative_title', 'composer', 'number_op', 'i_catalog', '_key', 'movements', 'composition_date', 'first_performance', 'first_publication', 'dedication', 'composer_period', 'piece_style', 'instrumentation', 'duration', 'extra_info', 'external_links', 'related_works', 'copyright', 'primary_sources', 'discography', 'translations', 'authorities', 'extra_locations', '_language', 'name_aliases', 'related_pages', 'librettist', 'difficulty_predicted_x1', 'difficulty_predicted_x2', 'difficulty_predicted_x3', 'latent_map_x1','latent_map_x2'))
 
-cursor.execute('''DELETE FROM musicsheet
-WHERE difficulty_predicted='';
+cursor.execute('''
+    DELETE FROM musicsheet
+    WHERE difficulty_predicted_x1 = '' AND difficulty_predicted_x2 = '' AND difficulty_predicted_x3 = ''
 ''')
+
 
 conn.commit()
 cursor.close()
