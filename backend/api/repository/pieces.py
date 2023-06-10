@@ -25,7 +25,7 @@ def get_pieces(size, page, key=None, period=None, min_difficulty=None, max_diffi
     result = []
     with database() as cursor:
        # Apply filter if a filter_value is provided
-        if key is not None or period is not None:
+        if key is not None or period is not None or min_difficulty is not None:
             cursor, total_pages = apply_filters(page, cursor, size, key, period, min_difficulty, max_difficulty)
             #cursor, total_pages=filtering_period(page, cursor, size, filter_value)
         else:
