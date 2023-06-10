@@ -6,16 +6,18 @@ def db_dict(rows, columns, result):
             row_dict = {}
             for i in range(len(columns)):
                 row_dict[columns[i]] = row[i]
-            latent_map = json.loads(row_dict["latent_map"])
             result.append({
+                "url": row_dict["url"],
                 "title": row_dict["work_title"],
                 "period": row_dict["composer_period"],
                 "author": row_dict["composer"],
+                "year": row_dict["first_publication"],
                 "difficulty": {
-                    "x1": latent_map[0],
-                    "x2": latent_map[1]
+                    "x1": row_dict["latent_map_x1"],
+                    "x2": row_dict["latent_map_x2"]
                 },
-                "id": row_dict["musicsheetid"]
+                "id": row_dict["musicsheetid"],
+                "key": row_dict["_key"]
             })
     return result
 
@@ -26,28 +28,9 @@ def get_pieces():
         rows = cursor.fetchall()
 
     result = []
-    for row in rows:
-        row_dict = {}
-        for i in range(len(columns)):
-            row_dict[columns[i]] = row[i]
+    pieces = db_dict(rows, columns, result)
 
-        result.append({
-            "title": row_dict["work_title"],
-            "period": row_dict["composer_period"],
-            "author": row_dict["composer"],
-            "difficulty": {
-                "x1": json.loads(row_dict["latent_map_x1"]),
-                "x2": json.loads(row_dict["latent_map_x2"])
-            },
-            "difficulty_predicted": {
-                "x1": json.loads(row_dict["difficulty_predicted_x1"]),
-                "x2": json.loads(row_dict["difficulty_predicted_x2"]),
-                "x3": json.loads(row_dict["difficulty_predicted_x3"])
-            },
-            "id": row_dict["musicsheetid"],
-        })
-
-    return result
+    return pieces
 
 def get_pieces_id(id):
     result = []
