@@ -45,12 +45,12 @@ const SearchBar = ({ onSearch }) => {
 };
 
 const SearchFilter = ({ setFilters }) => {
-  const [nationality, setNationality] = useState("");
+  const [key, setKey] = useState("");
   const [period, setPeriod] = useState("");
   const [difficulty, setDifficulty] = useState("");
 
-  const handleNationalityChange = (event) => {
-    setNationality(event.target.value);
+  const handleKeyChange = (event) => {
+    setKey(event.target.value);
   };
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
@@ -61,17 +61,17 @@ const SearchFilter = ({ setFilters }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ nationality, period, difficulty });
+    setFilters({ key, period, difficulty });
   };
 
   return (
     <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
       <select
-        value={nationality}
-        onChange={handleNationalityChange}
+        value={key}
+        onChange={handleKeyChange}
         className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       >
-        <option value="">Select Nationality</option>
+        <option value="">Select Key</option>
       </select>
       <select
         value={period}
@@ -81,6 +81,7 @@ const SearchFilter = ({ setFilters }) => {
         <option value="romantic">Romantic</option>
         <option value="classical">Classical</option>
         <option value="early-20th">Early-20th</option>
+        <option value="modern">Modern</option>
       </select>
       <select
         value={difficulty}
@@ -256,10 +257,17 @@ export const GraphExplorer = ({ pieces }) => {
   </div>
 }
 
-const getPieces = async () => {
-  const response = await fetch(`${API_HOST}/api/pieces`);
+const getPieces = async (sz, pg, k, pr/*, df*/) => {
+  const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
+    size: sz, 
+    page: pg,
+    key: k,
+    period: pr}))
+   // difficulty: ''}))
+
   const body = await response.json();
   return body;
+
 }
 
 const getProtectedEndpointDemo = async (credential) => {
@@ -279,16 +287,17 @@ export default function Home() {
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchFilter, setSearchFilter] = useState({
-    nationality: '',
-    epoch: '',
+    key: '',
+    period: '',
     difficulty: ''
   });
 
 
   const { requireLogin, credential } = useContext(AuthContext);
 
+ //size, page, key, period, difficulty
   useEffect(() => {
-    getPieces(credential).then(r => setPieces(r['array']))
+    getPieces(1000, 1, 'F major', 'Classical').then(r => setPieces(r['array']))
   }, []);  
 
   // demo calling an endpoint that needs login
