@@ -126,8 +126,9 @@ const LoadingStep = ({ loadingStartTime }) => {
 const ExploreStep = ({ file, difficulty, similarScores }) => {
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
-        const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
         if (isSelected) return '#dc2626';
+        if (piece.id === null) return '#ffa19c'
+        const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
         if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
         return grayscaleHex(mappedDifficulty);
     };
@@ -188,7 +189,19 @@ export default function Upload() {
 
         uploadPdf(credential, file).then(r => {
             setDifficulty(r.data.difficulty)
-            setSimilarScores(r.data.pieces)
+            setSimilarScores([{
+                "url": null,
+                "title": file?.name,
+                "period": null,
+                "author": null,
+                "year": null,
+                "difficulty": {
+                    "x1": r.data.difficulty[0],
+                    "x2": r.data.difficulty[0]
+                },
+                "id": null,
+                "key": null
+            }, ...r.data.pieces])
             setStep(STEP_EXPLORE)
         })
     }

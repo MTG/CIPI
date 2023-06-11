@@ -6,8 +6,8 @@ import { useTooltip, TooltipWithBounds } from '@visx/tooltip';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 const initialTransform = (width, height) => ({
-    scaleX: 450,
-    scaleY: 450,
+    scaleX: 300,
+    scaleY: 300,
     translateX: width / 2,
     translateY: height / 2,
     skewX: 0,
@@ -42,9 +42,9 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
             <Zoom
                 width={width}
                 height={height}
-                scaleXMin={220}
+                scaleXMin={110}
                 scaleXMax={1000}
-                scaleYMin={220}
+                scaleYMin={110}
                 scaleYMax={1000}
                 initialTransformMatrix={initialTransform(width, height)}
             >

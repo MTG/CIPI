@@ -31,6 +31,8 @@ const isTokenValid = async (credential) => {
 export const AuthContextProvider = ({ children, oneTapEnabled = true }) => {
   const [credential, setCredential] = useState(null)
 
+  const [showLogin, setShowLogin] = useState(false)
+
   useEffect(() => {
     const sessionCredential = sessionStorage.getItem(SESSION_CREDENTIAL_KEY)
 
@@ -53,6 +55,7 @@ export const AuthContextProvider = ({ children, oneTapEnabled = true }) => {
   
                   setCredential(res.credential)
                   sessionStorage.setItem(SESSION_CREDENTIAL_KEY, res.credential);
+                  setShowLogin(false)
                 }
           });
   
@@ -71,7 +74,6 @@ export const AuthContextProvider = ({ children, oneTapEnabled = true }) => {
     
     }, [oneTapEnabled])
 
-  const [showLogin, setShowLogin] = useState(false)
   const [allowSkip, setAllowSkip] = useState(false)
   const [remainingSkipTimeoutSeconds, setRemainintSkipTimeoutSeconds] = useState(10)
   useEffect(() => {
