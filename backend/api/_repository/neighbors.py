@@ -1,33 +1,29 @@
-from .db import database
-from .pieces import db_dict
-import numpy as np
+from db import database
 
-def get_piece_neighbors(id, size):
+def get_neighbours_piece():
+    neighbors = {}
+
     with database() as cursor:
-        cursor.execute("SELECT * FROM musicsheet")
-        
-        columns = [desc[0] for desc in cursor.description]
+        # Execute the SQL query to calculate the Euclidean distance
+        query = """
+        SELECT musicsheetid, CAST(
+            ROUND(
+                SQRT(
+                    SQUARE(Abs(MIN(latent_map_x1) - MAX(latent_map_x1)))
+                    + SQUARE(Abs(MIN(latent_map_x2) - MAX(latent_map_x2)))
+                ), 4)
+            AS decimal(18,4))
+        FROM musicsheet
+        GROUP BY musicsheetid;
+        """
+        cursor.execute(query)
         rows = cursor.fetchall()
-        
-        # Get the latent_map array for the input ID
-        target_latent_map = None
-        for row in rows:
-            if row[0] == id:
-                target_latent_map = np.array(eval(row[17]))
-                break
-        
-        # Convert the latent_map arrays to NumPy arrays
-        latent_maps = [np.array(eval(row[17])) for row in rows]
-        
-        # Calculate the Euclidean distances between the target and all other latent_map arrays
-        distances = [np.linalg.norm(target_latent_map - latent_map) for latent_map in latent_maps]
-        
-        # Sort the distances and get the indices of the closest entries
-        closest_indices = np.argsort(distances)[:size]
-        
-        closest_entries = []
-        db_dict([rows[i] for i in closest_indices], columns, closest_entries)
 
-        return closest_entries
-        
-        
+        for row in rows:
+            piece_id = row[0]
+            distance = row[1]
+            neighbors[piece_id] = distance
+
+    return neighbors
+
+
