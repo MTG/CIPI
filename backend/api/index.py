@@ -25,9 +25,10 @@ def pieces():
     page=int(args.get("page"))
     key=args.get("key")
     period=args.get("period")
-    min_difficulty=float(args.get("min_difficulty"))
-    max_difficulty=float(args.get("max_difficulty"))
-    pieces, pages_count = get_pieces(size, page,key, period, min_difficulty, max_difficulty)
+    min_difficulty=args.get("min_difficulty")
+    max_difficulty=args.get("max_difficulty")
+    input_string=args.get("input_string")
+    pieces, pages_count = get_pieces(size, page,key, period, min_difficulty, max_difficulty, input_string)
     return jsonify({ 
          "_links": {
             "total_pages": pages_count

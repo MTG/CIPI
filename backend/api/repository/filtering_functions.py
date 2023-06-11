@@ -4,12 +4,14 @@ def ret_query_filters(key, period, min_difficulty, max_difficulty):
     filtered_values={}
 
     if key is not None:
-        query= query + " _key= %(key)s AND"
-        filtered_values["key"] = key
+        query= query + " _key LIKE %(key)s AND"
+        filtered_values["key"] = '%' + key + '%'
     if period is not None:
         query= query + " composer_period= %(period)s AND"
         filtered_values["period"] = period
     if min_difficulty is not None and max_difficulty is not None:
+        min_difficulty=float(min_difficulty)
+        max_difficulty=float(max_difficulty)
         query= query + " normalized_difficulty BETWEEN %(min_difficulty)s AND %(max_difficulty)s AND"
         filtered_values["min_difficulty"] = min_difficulty
         filtered_values["max_difficulty"] = max_difficulty

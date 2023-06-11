@@ -1,5 +1,6 @@
 from .db import database
 from .filtering_functions import apply_filters
+from .search import search_db
 import json
 
 def db_dict(rows, columns, result):
@@ -8,9 +9,11 @@ def db_dict(rows, columns, result):
             for i in range(len(columns)):
                 row_dict[columns[i]] = row[i]
             result.append({
+                 "url": row_dict["url"],
                 "title": row_dict["work_title"],
                 "period": row_dict["composer_period"],
                 "author": row_dict["composer"],
+                "year": row_dict["first_publication"],
                 "difficulty": {
                     "x1": row_dict["latent_map_x1"],
                     "x2": row_dict["latent_map_x2"]
@@ -20,7 +23,7 @@ def db_dict(rows, columns, result):
             })
     return result
 
-def get_pieces(size, page, key=None, period=None, min_difficulty=None, max_difficulty=None):
+def get_pieces(size, page, key=None, period=None, min_difficulty=None, max_difficulty=None, input_string=None):
 
     result = []
     with database() as cursor:
@@ -28,6 +31,8 @@ def get_pieces(size, page, key=None, period=None, min_difficulty=None, max_diffi
         if key is not None or period is not None or min_difficulty is not None:
             cursor, total_pages = apply_filters(page, cursor, size, key, period, min_difficulty, max_difficulty)
             #cursor, total_pages=filtering_period(page, cursor, size, filter_value)
+        elif input_string is not None:
+            cursor, total_pages=search_db(page, cursor, size, input_string)
         else:
             # No filter applied, retrieve all pieces
             cursor.execute('SELECT COUNT(musicsheetid) FROM musicsheet')
