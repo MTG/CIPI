@@ -44,10 +44,12 @@ const SearchBar = ({ onSearch }) => {
   );
 };
 
-const SearchFilter = ({ setFilters }) => {
+const SearchFilter = ({ onFilterChange }) => {
   const [key, setKey] = useState("");
   const [period, setPeriod] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [min_difficulty, setMinDifficulty] = useState("");
+  const [max_difficulty, setMaxDifficulty] = useState("");
+
 
   const handleKeyChange = (event) => {
     setKey(event.target.value);
@@ -55,13 +57,15 @@ const SearchFilter = ({ setFilters }) => {
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
   };
-  const handleDifficultyChange = (event) => {
-    setDifficulty(event.target.value);
+  const handleMinDifficultyChange = (event) => {
+    setMinDifficulty(event.target.value);
   };
-
+  const handleMaxDifficultyChange = (event) => {
+    setMaxDifficulty(event.target.value);
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ key, period, difficulty });
+    onFilterChange({ key, period, min_difficulty, max_difficulty });
   };
 
   return (
@@ -71,31 +75,71 @@ const SearchFilter = ({ setFilters }) => {
         onChange={handleKeyChange}
         className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
       >
-        <option value="">Select Key</option>
+        <option value="">Select Signature Key</option>
+        <option value="">C major/A minor</option>
+        <option value="">G major/E minor</option>
+        <option value="">D major/B minor</option>
+        <option value="">A major/F sharp minor</option>
+        <option value="">E major/C sharp minor</option>
+        <option value="">B major/G sharp minor</option>
+        <option value="">F sharp major/D sharp minor</option>
+        <option value="">C sharp major/B sharop minor</option>
+        <option value="">F major/D minor</option>
+        <option value="">B flat major/G minor</option>
+        <option value="">E flat major/C minor</option>
+        <option value="">A flat major/F minor</option>
+        <option value="">D flat major/B flat minor</option>
+        <option value="">G flat major/E flat minor</option>
+        <option value="">C flat major/A flat minor</option>       
       </select>
       <select
         value={period}
         onChange={handlePeriodChange}
         className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0" >
         <option value="">Select Period</option>
-        <option value="romantic">Romantic</option>
-        <option value="classical">Classical</option>
-        <option value="early-20th">Early-20th</option>
-        <option value="modern">Modern</option>
-      </select>
-      <select
-        value={difficulty}
-        onChange={handleDifficultyChange}
-        className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-        >
-        <option value="">Select Difficulty</option>
-        <option value="Easy">Easy (1-3)</option>
-        <option value="Medium">Medium (4-6)</option>
-        <option value="Hard">Hard (7-9)</option>
-      </select>
+        <option value="Romantic">Romantic</option>
+        <option value="Classical">Classical</option>
+        <option value="Early-20th">Early-20th</option>
+        <option value="Modern">Modern</option>
+        </select>
+      <div className="flex flex-col mr-2 mb-2 sm:mb-0">
+        <label htmlFor="minDifficulty" className="text-gray-900">
+          Minimum Difficulty: {min_difficulty}
+        </label>
+        <input
+          type="range"
+          id="minDifficulty"
+          min="1"
+          max="9"
+          value={min_difficulty}
+          onChange={handleMinDifficultyChange}
+          className="cursor-pointer bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+        />
+      </div>
+      <div className="flex flex-col mr-2 mb-2 sm:mb-0">
+        <label htmlFor="maxDifficulty" className="text-gray-900">
+          Maximum Difficulty: {max_difficulty}
+        </label>
+        <input
+          type="range"
+          id="maxDifficulty"
+          min="1"
+          max="9"
+          value={max_difficulty}
+          onChange={handleMaxDifficultyChange}
+          className="cursor-pointer bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+        />
+      </div>
+      <button
+        type="submit"
+        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
+      >
+        Filter
+      </button>
     </form>
   );
-}
+};
+
 
 const ListExplorer = ({ pieces, filter }) => {
   const router = useRouter();
@@ -257,17 +301,17 @@ export const GraphExplorer = ({ pieces }) => {
   </div>
 }
 
-const getPieces = async (sz, pg, k, pr/*, df*/) => {
+const getPieces = async (sz, pg, k, pr, mind, maxd) => {
   const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
     size: sz, 
     page: pg,
     key: k,
-    period: pr}))
-   // difficulty: ''}))
+    period: pr,
+    min_difficulty: mind,
+    max_difficulty: maxd}))
 
   const body = await response.json();
   return body;
-
 }
 
 const getProtectedEndpointDemo = async (credential) => {
@@ -289,16 +333,23 @@ export default function Home() {
   const [searchFilter, setSearchFilter] = useState({
     key: '',
     period: '',
-    difficulty: ''
-  });
+    min_difficulty: null,
+    max_difficulty: null});
 
 
   const { requireLogin, credential } = useContext(AuthContext);
 
- //size, page, key, period, difficulty
+//size, page, key, period, min and max difficulty
   useEffect(() => {
-    getPieces(1000, 1, 'F major', 'Classical').then(r => setPieces(r['array']))
-  }, []);  
+  const { key, period, min_difficulty, max_difficulty } = searchFilter;
+  getPieces(1000, 1, key, period, min_difficulty, max_difficulty)
+    .then(r => setPieces(r['array']))
+  }, []);
+ 
+// hardcode that works
+// useEffect(() => {
+// getPieces(1000, 1, 'F major', 'Modern', 1, 9).then(r => setPieces(r['array']))
+// }, []);  
 
   // demo calling an endpoint that needs login
   useEffect(() => {
@@ -321,17 +372,18 @@ export default function Home() {
     setSearchResult(filteredPieces);
   };
 
-  const handleFilterChange = (event) => {
-    setSearchFilter({ ...searchFilter, [name]: value });
+  const handleFilterChange = (filter) => {
+    setSearchFilter(filter);
   };
 
+
   const filteredPieces = searchFilter?.period
-    ? searchResult.filter((piece) => piece.period === searchFilter.period)
+    ? searchResult?.filter((piece) => piece.period === searchFilter.period) || []
     : pieces;
 
     console.log(searchFilter)
 
-   const handleFileUpload = (event) => {
+    const handleFileUpload = (event) => {
     const file = event.target.files[0];
     //Store PDF in folder to be read with OMR
     console.log("Uploaded file:", file);
@@ -377,9 +429,8 @@ export default function Home() {
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
+          <SearchFilter onFilterChange={handleFilterChange} />
         </div>
-
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
             <GraphExplorer pieces={pieces} />
