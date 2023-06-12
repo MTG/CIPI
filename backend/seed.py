@@ -2,7 +2,8 @@ import os
 import sys
 from dotenv import load_dotenv, find_dotenv
 import psycopg2
-from pca import apply_svd
+
+import numpy as np
 
 
 load_dotenv(find_dotenv())
@@ -82,11 +83,8 @@ FOREIGN KEY (mail) REFERENCES _user (mail)
 )''')
 
 
-#insert data
 
-csv_file_name = os.path.join(sys.path[0], "only_one_piece.csv")
-
-with open(csv_file_name, 'rb') as f:
+with open("only_one_piece.csv", 'rb') as f:
     next(f) 
     cursor.copy_from(f, 'musicsheet', sep='$', columns=('url', 'work_title', 'alternative_title', 'composer', 'number_op', 'i_catalog', '_key', 'movements', 'composition_date', 'first_performance', 'first_publication', 'dedication', 'composer_period', 'piece_style', 'instrumentation', 'duration', 'extra_info', 'external_links', 'related_works', 'copyright', 'primary_sources', 'discography', 'translations', 'authorities', 'extra_locations', '_language', 'name_aliases', 'related_pages', 'librettist', 'difficulty_predicted_x1', 'difficulty_predicted_x2', 'difficulty_predicted_x3', 'latent_map_x1','latent_map_x2'))
 
@@ -95,34 +93,6 @@ cursor.execute('''
     WHERE difficulty_predicted_x1 = '' AND difficulty_predicted_x2 = '' AND difficulty_predicted_x3 = ''
 ''')
 
-
-
-# Retrieve all pieces from the musicsheet table
-cursor.execute('SELECT musicsheetid, difficulty_predicted_x1, difficulty_predicted_x2 FROM musicsheet')
-rows = cursor.fetchall()
-
-pieces_list = []
-update_values = []
-
-for row in rows:
-    piece = {
-        "id": row[0],
-        "difficulty_predicted": {
-            "x1": row[1],
-            "x2": row[2]
-        }
-    }
-    pieces_list.append(piece)
-
-# Apply SVD to the "difficulty_predicted" values for all rows
-transformed_values = apply_svd(pieces_list, 1)
-
-# Prepare the update values for all rows
-update_values = [(transformed_values[i][0], transformed_values[i][1], piece['id']) for i, piece in enumerate(pieces_list)]
-
-# Update the "latent_map_x1" and "latent_map_x2" columns in the database
-update_query = "UPDATE musicsheet SET latent_map_x1 = %s, latent_map_x2 = %s WHERE musicsheetid = %s"
-cursor.executemany(update_query, update_values)
 
 conn.commit()
 cursor.close()
