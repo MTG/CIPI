@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from ._repository.pieces import get_pieces, get_pieces_id
 from ._clients.pdf_difficulty_service import get_difficulty
-from ._repository.neighbors import get_piece_neighbors_by_id, get_piece_neighbours_by_latent_map
+from ._repository.neighbors import get_neighbors_piece, get_neighbors_piece_difficulty
 
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
 load_dotenv(".env")
@@ -36,7 +36,7 @@ def new_piece(user):
     return jsonify({ 
         "data": {
             "difficulty": difficulty,
-            "pieces": get_piece_neighbours_by_latent_map(difficulty, 13)  # 13 closest pieces by difficulty
+            "pieces": get_neighbors_piece_difficulty(difficulty)  # 13 closest pieces by difficulty
         }
     })
 
@@ -62,7 +62,7 @@ def pieces_id_neighbors(id):
     args = request.args
     id=int(args.get("id"))
     size=int(args.get("size"))
-    array_neighbors= get_piece_neighbors_by_id(id, size)
+    array_neighbors= get_neighbors_piece(id)
     return jsonify({ 
         "array": array_neighbors
     })

@@ -1,29 +1,58 @@
 from db import database
 
-def get_neighbours_piece():
-    neighbors = {}
+def get_neighbors_piece(piece_id):
+    sql = '''
+        SELECT
+            neighbour.musicsheetid AS neighbour_id,
+            SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2)) AS distance
+        FROM
+            musicsheet AS piece
+        JOIN
+            musicsheet AS neighbour ON neighbour.musicsheetid != piece.musicsheetid
+        WHERE
+            piece.musicsheetid = %s;
+    '''
+
+
 
     with database() as cursor:
-        # Execute the SQL query to calculate the Euclidean distance
-        query = """
-        SELECT musicsheetid, CAST(
-            ROUND(
-                SQRT(
-                    SQUARE(Abs(MIN(latent_map_x1) - MAX(latent_map_x1)))
-                    + SQUARE(Abs(MIN(latent_map_x2) - MAX(latent_map_x2)))
-                ), 4)
-            AS decimal(18,4))
-        FROM musicsheet
-        GROUP BY musicsheetid;
-        """
-        cursor.execute(query)
-        rows = cursor.fetchall()
+        cursor.execute(sql, (piece_id,))
+        results = cursor.fetchall()
 
-        for row in rows:
-            piece_id = row[0]
-            distance = row[1]
-            neighbors[piece_id] = distance
+    return results
 
-    return neighbors
+
+def get_neighbors_piece_difficulty(difficulty):
+    sql = '''
+        SELECT
+            neighbour.musicsheetid AS neighbour_id
+        FROM
+            musicsheet AS piece
+        JOIN
+            musicsheet AS neighbour ON neighbour.musicsheetid != piece.musicsheetid
+        WHERE
+            piece.difficulty_predicted_x1::INTEGER = %s
+            OR piece.difficulty_predicted_x2::INTEGER = %s
+            OR piece.difficulty_predicted_x3::INTEGER = %s
+        ORDER BY
+            SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2)) ASC
+        LIMIT 10;
+    '''
+
+    with database() as cursor:
+        cursor.execute(sql, (int(difficulty), int(difficulty), int(difficulty)))
+        results = cursor.fetchall()
+
+    piece_ids = [result[0] for result in results]  # Extract the piece IDs from the tuples
+    return piece_ids
+
+
+
+
+
+
+""" difficulty = 4  # Example difficulty value
+neighbors = get_neighbors_piece_difficulty(difficulty)
+print(neighbors) """
 
 

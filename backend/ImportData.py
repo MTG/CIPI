@@ -24,11 +24,11 @@ df[['difficulty_predicted_x1', 'difficulty_predicted_x2', 'difficulty_predicted_
 
 df.drop(['difficulty_predicted', 'latent_map'], axis=1, inplace=True)  # Drop the original columns
 
-noise = np.random.normal(loc=0,scale=1, size=len(df))
+
 
 # Update 'latent_map_x1' and 'latent_map_x2' columns with noise
-df['latent_map_x1'] = df['difficulty_predicted_x1'].astype(float) + noise.astype(float)
-df['latent_map_x2'] = df['difficulty_predicted_x2'].astype(float) + noise.astype(float)
+df['latent_map_x1'] = df['difficulty_predicted_x1'].astype(float) + np.random.normal(loc=0,scale=1, size=len(df)).astype(float)
+df['latent_map_x2'] = df['difficulty_predicted_x2'].astype(float) + np.random.normal(loc=0,scale=1, size=len(df)).astype(float)
 
 # Replace '-' with empty space in 'key' column
 df['Key'] = df['Key'].str.replace('-', ' ')
