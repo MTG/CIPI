@@ -1,11 +1,8 @@
 
-def ret_query_filters(key, period, min_difficulty, max_difficulty):
+def ret_query_filters(period, min_difficulty, max_difficulty):
     query=""
     filtered_values={}
 
-    if key is not None:
-        query= query + " _key LIKE %(key)s AND"
-        filtered_values["key"] = '%' + key + '%'
     if period is not None:
         query= query + " composer_period= %(period)s AND"
         filtered_values["period"] = period
