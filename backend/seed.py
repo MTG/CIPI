@@ -59,10 +59,10 @@ latent_map_x2 VARCHAR(8000)
 
 #user
 cursor.execute('''CREATE TABLE _user (
-mail VARCHAR(255) PRIMARY KEY,
-name VARCHAR(255) NOT NULL,
-surname VARCHAR(255) NOT NULL,
-study_years VARCHAR(255),
+mail VARCHAR(8000) PRIMARY KEY,
+name VARCHAR(8000) NOT NULL,
+surname VARCHAR(8000) NOT NULL,
+study_years VARCHAR(8000),
 assigned_level INT NOT NULL
 )''')
 
@@ -70,11 +70,11 @@ assigned_level INT NOT NULL
 cursor.execute('''CREATE TABLE feedback (
 feedback_id INT PRIMARY KEY,
 musicsheetid INT NOT NULL,
-mail VARCHAR(255) NOT NULL,
+mail VARCHAR(8000) NOT NULL,
 rating INT NOT NULL,
 expressiveness INT NOT NULL,
 technical INT NOT NULL,
-reasoning VARCHAR(255),
+reasoning VARCHAR(8000),
 FOREIGN KEY (musicsheetid) REFERENCES musicsheet (musicsheetid),
 FOREIGN KEY (mail) REFERENCES _user (mail)
 )''')
@@ -93,6 +93,12 @@ cursor.execute('''
     WHERE difficulty_predicted_x1 = '' AND difficulty_predicted_x2 = '' AND difficulty_predicted_x3 = ''
 ''')
 
+cursor.execute('''ALTER TABLE musicsheet ADD COLUMN normalized_difficulty DECIMAL(5, 2)''')
+
+cursor.execute('''UPDATE musicsheet
+SET normalized_difficulty = ((CAST(difficulty_predicted_x1 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x2 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x3 AS DECIMAL) / 4) * 3);
+''')           
+             
 
 conn.commit()
 cursor.close()
