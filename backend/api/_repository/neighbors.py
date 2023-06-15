@@ -1,33 +1,58 @@
 from .db import database
-from .pieces import db_dict
-import numpy as np
 
-def get_piece_neighbors(id, size):
+def get_neighbors_piece(piece_id):
+    sql = '''
+        SELECT
+            neighbour.musicsheetid AS neighbour_id,
+            SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2)) AS distance
+        FROM
+            musicsheet AS piece
+        JOIN
+            musicsheet AS neighbour ON neighbour.musicsheetid != piece.musicsheetid
+        WHERE
+            piece.musicsheetid = %s;
+    '''
+
+
+
     with database() as cursor:
-        cursor.execute("SELECT * FROM musicsheet")
-        
-        columns = [desc[0] for desc in cursor.description]
-        rows = cursor.fetchall()
-        
-        # Get the latent_map array for the input ID
-        target_latent_map = None
-        for row in rows:
-            if row[0] == id:
-                target_latent_map = np.array(eval(row[17]))
-                break
-        
-        # Convert the latent_map arrays to NumPy arrays
-        latent_maps = [np.array(eval(row[17])) for row in rows]
-        
-        # Calculate the Euclidean distances between the target and all other latent_map arrays
-        distances = [np.linalg.norm(target_latent_map - latent_map) for latent_map in latent_maps]
-        
-        # Sort the distances and get the indices of the closest entries
-        closest_indices = np.argsort(distances)[:size]
-        
-        closest_entries = []
-        db_dict([rows[i] for i in closest_indices], columns, closest_entries)
+        cursor.execute(sql, (piece_id,))
+        results = cursor.fetchall()
 
-        return closest_entries
-        
-        
+    return results
+
+
+def get_neighbors_piece_difficulty(difficulty):
+    sql = '''
+        SELECT
+            neighbour.musicsheetid AS neighbour_id
+        FROM
+            musicsheet AS piece
+        JOIN
+            musicsheet AS neighbour ON neighbour.musicsheetid != piece.musicsheetid
+        WHERE
+            piece.difficulty_predicted_x1::INTEGER = %s
+            OR piece.difficulty_predicted_x2::INTEGER = %s
+            OR piece.difficulty_predicted_x3::INTEGER = %s
+        ORDER BY
+            SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2)) ASC
+        LIMIT 10;
+    '''
+
+    with database() as cursor:
+        cursor.execute(sql, (int(difficulty), int(difficulty), int(difficulty)))
+        results = cursor.fetchall()
+
+    piece_ids = [result[0] for result in results]  # Extract the piece IDs from the tuples
+    return piece_ids
+
+
+
+
+
+
+""" difficulty = 4  # Example difficulty value
+neighbors = get_neighbors_piece_difficulty(difficulty)
+print(neighbors) """
+
+
