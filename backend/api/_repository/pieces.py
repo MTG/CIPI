@@ -24,10 +24,35 @@ def to_piece_dto(row_dict):
     }
 
 
-def get_pieces(size, page, key=None, period=None, min_difficulty=None, max_difficulty=None):
+def get_pieces():
+    with database() as cursor:
+        cursor.execute('SELECT * FROM musicsheet')
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
 
-    pieces = (get_row_dict(row, columns) for row in rows)
-    return list(map(to_piece_dto, pieces))
+    result = []
+    for row in rows:
+        row_dict = {}
+        for i in range(len(columns)):
+            row_dict[columns[i]] = row[i]
+
+        result.append({
+            "title": row_dict["work_title"],
+            "period": row_dict["composer_period"],
+            "author": row_dict["composer"],
+            "difficulty": {
+                "x1": json.loads(row_dict["latent_map_x1"]),
+                "x2": json.loads(row_dict["latent_map_x2"])
+            },
+            "difficulty_predicted": {
+                "x1": json.loads(row_dict["difficulty_predicted_x1"]),
+                "x2": json.loads(row_dict["difficulty_predicted_x2"]),
+                "x3": json.loads(row_dict["difficulty_predicted_x3"])
+            },
+            "id": row_dict["musicsheetid"],
+        })
+
+    return result
 
 def get_pieces_id(id):
     with database() as cursor:

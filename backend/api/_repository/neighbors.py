@@ -1,4 +1,4 @@
-from db import database
+from .db import database
 
 def get_neighbors_piece(piece_id):
     sql = '''
