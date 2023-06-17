@@ -45,15 +45,11 @@ const SearchBar = ({ onSearch }) => {
 };
 
 const SearchFilter = ({ onFilterChange }) => {
-  const [key, setKey] = useState("");
   const [period, setPeriod] = useState("");
   const [min_difficulty, setMinDifficulty] = useState("");
   const [max_difficulty, setMaxDifficulty] = useState("");
 
 
-  const handleKeyChange = (event) => {
-    setKey(event.target.value);
-  };
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
   };
@@ -65,33 +61,11 @@ const SearchFilter = ({ onFilterChange }) => {
   };
   const handleSubmit = (event) => {
     event.preventDefault();
-    onFilterChange({ key, period, min_difficulty, max_difficulty });
+    onFilterChange({ period, min_difficulty, max_difficulty });
   };
 
   return (
     <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
-      <select
-        value={key}
-        onChange={handleKeyChange}
-        className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0"
-      >
-        <option value="">Select Signature Key</option>
-        <option value="">C major/A minor</option>
-        <option value="">G major/E minor</option>
-        <option value="">D major/B minor</option>
-        <option value="">A major/F sharp minor</option>
-        <option value="">E major/C sharp minor</option>
-        <option value="">B major/G sharp minor</option>
-        <option value="">F sharp major/D sharp minor</option>
-        <option value="">C sharp major/B sharop minor</option>
-        <option value="">F major/D minor</option>
-        <option value="">B flat major/G minor</option>
-        <option value="">E flat major/C minor</option>
-        <option value="">A flat major/F minor</option>
-        <option value="">D flat major/B flat minor</option>
-        <option value="">G flat major/E flat minor</option>
-        <option value="">C flat major/A flat minor</option>       
-      </select>
       <select
         value={period}
         onChange={handlePeriodChange}
@@ -301,14 +275,14 @@ export const GraphExplorer = ({ pieces }) => {
   </div>
 }
 
-const getPieces = async (sz, pg, k, pr, mind, maxd) => {
+const getPieces = async (sz, pg, pr, mind, maxd) => {
   const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
-    size: sz, 
+    size: sz,
     page: pg,
-    key: k,
     period: pr,
     min_difficulty: mind,
-    max_difficulty: maxd}))
+    max_difficulty: maxd,
+    input_string: ''}))
 
   const body = await response.json();
   return body;
@@ -331,7 +305,6 @@ export default function Home() {
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchFilter, setSearchFilter] = useState({
-    key: '',
     period: '',
     min_difficulty: null,
     max_difficulty: null});
@@ -339,16 +312,16 @@ export default function Home() {
 
   const { requireLogin, credential } = useContext(AuthContext);
 
-//size, page, key, period, min and max difficulty
+//size, page, period, min_difficulty, max_difficulty, input_string
   useEffect(() => {
-  const { key, period, min_difficulty, max_difficulty } = searchFilter;
-  getPieces(1000, 1, key, period, min_difficulty, max_difficulty)
+  const { period, min_difficulty, max_difficulty } = searchFilter;
+  getPieces(100, 1, 'Romantic', 1, 9, '')
     .then(r => setPieces(r['array']))
   }, []);
  
 // hardcode that works
 // useEffect(() => {
-// getPieces(1000, 1, 'F major', 'Modern', 1, 9).then(r => setPieces(r['array']))
+// getPieces(1000, 1, 'Modern', 1, 9).then(r => setPieces(r['array']))
 // }, []);  
 
   // demo calling an endpoint that needs login
