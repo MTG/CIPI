@@ -3,6 +3,9 @@ import sys
 from dotenv import load_dotenv, find_dotenv
 import psycopg2
 
+import numpy as np
+
+
 load_dotenv(find_dotenv())
 
 conn = psycopg2.connect(database=os.getenv("DATABASE_NAME"),
@@ -59,10 +62,10 @@ latent_map_x2 VARCHAR(8000)
 
 #user
 cursor.execute('''CREATE TABLE _user (
-mail VARCHAR(255) PRIMARY KEY,
-name VARCHAR(255) NOT NULL,
-surname VARCHAR(255) NOT NULL,
-study_years VARCHAR(255),
+mail VARCHAR(8000) PRIMARY KEY,
+name VARCHAR(8000) NOT NULL,
+surname VARCHAR(8000) NOT NULL,
+study_years VARCHAR(8000),
 assigned_level INT NOT NULL
 )''')
 
@@ -70,21 +73,18 @@ assigned_level INT NOT NULL
 cursor.execute('''CREATE TABLE feedback (
 feedback_id INT PRIMARY KEY,
 musicsheetid INT NOT NULL,
-mail VARCHAR(255) NOT NULL,
+mail VARCHAR(8000) NOT NULL,
 rating INT NOT NULL,
 expressiveness INT NOT NULL,
 technical INT NOT NULL,
-reasoning VARCHAR(255),
+reasoning VARCHAR(8000),
 FOREIGN KEY (musicsheetid) REFERENCES musicsheet (musicsheetid),
 FOREIGN KEY (mail) REFERENCES _user (mail)
 )''')
 
 
-#insert data
 
-csv_file_name = os.path.join(sys.path[0], "only_one_piece.csv")
-
-with open(csv_file_name, 'rb') as f:
+with open("only_one_piece.csv", 'rb') as f:
     next(f) 
     cursor.copy_from(f, 'musicsheet', sep='$', columns=('url', 'work_title', 'alternative_title', 'composer', 'number_op', 'i_catalog', '_key', 'movements', 'composition_date', 'first_performance', 'first_publication', 'dedication', 'composer_period', 'piece_style', 'instrumentation', 'duration', 'extra_info', 'external_links', 'related_works', 'copyright', 'primary_sources', 'discography', 'translations', 'authorities', 'extra_locations', '_language', 'name_aliases', 'related_pages', 'librettist', 'difficulty_predicted_x1', 'difficulty_predicted_x2', 'difficulty_predicted_x3', 'latent_map_x1','latent_map_x2'))
 
@@ -103,5 +103,10 @@ SET normalized_difficulty = ((CAST(difficulty_predicted_x1 AS DECIMAL) / 8) * 3 
 conn.commit()
 cursor.close()
 conn.close()
+
+
+
+
+
 
 

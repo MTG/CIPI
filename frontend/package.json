@@ -9,13 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lottiefiles/react-lottie-player": "^3.5.3",
     "@visx/visx": "^3.1.2",
     "eslint": "8.37.0",
     "eslint-config-next": "13.3.0",
     "latest": "^0.2.0",
     "next": "13.3.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",

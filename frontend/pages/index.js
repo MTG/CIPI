@@ -1,16 +1,18 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { useEffect, useState, useContext } from 'react'
 import { API_HOST } from '@/config'
-import { PieceGraph } from '../components/GraphExplorer'
+import { PieceGraph, grayscaleHex, mapRange } from '../components/GraphExplorer'
 import { useRouter } from 'next/router'
 import { AuthContext } from '@/contexts/AuthContext'
+import { PieceCard } from '@/components/PieceCard'
 
 const MapModeToggle = ({ mapMode, setMapMode }) => {
-  return <label className="relative inline-flex items-center mr-5 cursor-pointer">
+  return <div><label className="relative inline-flex items-center mr-5 cursor-pointer">
     <input type="checkbox" value="" className="sr-only peer" checked={mapMode} onChange={() => setMapMode(x => !x)} />
     <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-red-300 dark:peer-focus:ring-red-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
     <span className="ml-3 text-sm font-medium text-gray-600">Map mode</span>
-  </label>;
+  </label></div>;
 }
 
 const SearchBar = ({ onSearch }) => {
@@ -26,20 +28,14 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative flex items-center w-80">
+    <form onSubmit={handleSubmit} className="flex-1 max-w-lg">
       <input
         type="text"
         value={query}
         onChange={handleInputChange}
         placeholder="Search a piece or author"
-        className="w-64 px-4 py-2 text-gray-900 bg-gray-100 rounded-l-md focus:outline-none focus:ring focus:ring-blue-300"
+        className="w-full px-4 py-2 border-solid border-2 border-gray-200 rounded-md focus:outline-none"
       />
-      <button
-        type="submit"
-        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:shadow-outline"
-      >
-        Search
-      </button>
     </form>
   );
 };
@@ -50,6 +46,9 @@ const SearchFilter = ({ onFilterChange }) => {
   const [max_difficulty, setMaxDifficulty] = useState("");
 
 
+  const handleKeyChange = (event) => {
+    setKey(event.target.value);
+  };
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
   };
@@ -69,7 +68,7 @@ const SearchFilter = ({ onFilterChange }) => {
       <select
         value={period}
         onChange={handlePeriodChange}
-        className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0" >
+        className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
         <option value="">Select Period</option>
         <option value="Romantic">Romantic</option>
         <option value="Classical">Classical</option>
@@ -191,69 +190,34 @@ const ListExplorer = ({ pieces, filter }) => {
 
     return buttons;
   };
-
+  
   return (
-    <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
+   <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
       <ul className="w-3/4 flex-1 overflow-y-auto">
-        {displayedPieces.map((piece) => (
+       {displayedPieces.map((piece) => (
           <li key={piece.id}>
-            <div
-              className={`my-5 border p-4 rounded-md hover:bg-gray-100 cursor-pointer ${
+           <div
+             className={`my-5 border p-4 rounded-md hover:bg-gray-100 cursor-pointer ${
                 selectedPiece === null ? '' : ''
-              }`}
-              onClick={() => handlePieceSelection(piece)}
-            >
+             }`}
+             onClick={() => handlePieceSelection(piece)}
+           >
               <div className={'ml-2 text-sm font-medium text-gray-600'}>
                 {piece.author} - {piece.period.charAt(0).toUpperCase() + piece.period.slice(1)}
-              </div>
-              <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
+             </div>
+             <div className={'ml-2 text-sm font-bold'}>{piece.title}</div>
             </div>
           </li>
-        ))}
+       ))}
       </ul>
       <div className="flex justify-center mt-4">
         {renderPageButtons()}
-      </div>
+     </div>
     </div>
   );
 }
 
-const SelectedPieceCard = ({ selectedPiece }) => {
-  const router = useRouter()
-  const onGoToPiece = () => {
-    if (selectedPiece === null) return;
-    router.push(`/pieces/${selectedPiece?.id}`)
-  };
-  return <div onClick={onGoToPiece} className={`border p-4 rounded-md flex ${selectedPiece === null ? '' : 'cursor-pointer hover:bg-zinc-50'}`}>
-    <div className={`grow ${selectedPiece === null ? 'text-gray-400' : ''}`}>
-      <div className="flex mb-1">
-        <div className={`rounded-full mr-2 mt-1.5 w-4 h-4 ${selectedPiece === null ? 'bg-red-300' : 'bg-red-600'}`} />
-        <div className="flex flex-col">
-          <span className="font-medium text-lg ">{selectedPiece?.title ?? 'Select a piece'}</span>
-          <span className="text-md">{selectedPiece?.author ?? '...'}</span>
-        </div>
-      </div>
-    </div>
-    <div className="">
-      <button className={`grow-0 rounded-md text-white font-medium p-2  ${selectedPiece === null ? 'bg-gray-300 cursor-default' : 'cursor-pointer  bg-black hover:bg-gray-800 '}`}>
-        Learn more
-      </button>
-    </div>
-  </div>
-}
 
-const grayscaleHex = (value) => {
-  const intValue = Math.round(value * 255);
-  const hexValue = intValue.toString(16).padStart(2, '0');
-  return `#${hexValue}${hexValue}${hexValue}`;
-}
-
-function mapRange(value, fromMin, fromMax, toMin, toMax) {
-  const range = fromMax - fromMin;
-  const scaledValue = (value - fromMin) / range;
-  const toRange = toMax - toMin;
-  return (scaledValue * toRange) + toMin;
-}
 
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
@@ -264,7 +228,7 @@ export const GraphExplorer = ({ pieces }) => {
     return grayscaleHex(mappedDifficulty);
   };
   return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
-    <SelectedPieceCard selectedPiece={selectedPiece} />
+    <PieceCard selectedPiece={selectedPiece} />
     <PieceGraph
       pieces={pieces}
       onSelectPiece={setSelectedPiece}
@@ -284,18 +248,6 @@ const getPieces = async (sz, pg, pr, mind, maxd) => {
     max_difficulty: maxd,
     input_string: ''}))
 
-  const body = await response.json();
-  return body;
-}
-
-const getProtectedEndpointDemo = async (credential) => {
-  const response = await fetch(`${API_HOST}/api/demoAuth`, 
-    {
-      headers: {
-        Authentication: `Bearer ${credential}`
-      }
-    }
-  );
   const body = await response.json();
   return body;
 }
@@ -323,12 +275,6 @@ export default function Home() {
 // useEffect(() => {
 // getPieces(1000, 1, 'Modern', 1, 9).then(r => setPieces(r['array']))
 // }, []);  
-
-  // demo calling an endpoint that needs login
-  useEffect(() => {
-    if (credential === null) return;
-    getProtectedEndpointDemo(credential).then(r => console.log(r))
-  }, [credential])
 
   const handleSearch = (searchTerm) => {
     const filteredPieces = pieces.filter((piece) => {
@@ -380,25 +326,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.png" />
 
       </Head>
-      <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-2 overflow-hidden">
-        <div>
+      <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
+        <div className="flex pb-4">
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
+          <div className="flex-1" />
+          <Link href="upload"><button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm">Upload PDF</button></Link>
         </div>
-        <div className="absolute top-0 right-0 mt-2 mr-2">
-          <label htmlFor="file-upload">
-            <span className="text-sm font-medium text-gray-600 cursor-pointer">
-              Upload PDF
-            </span>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".pdf"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </label>
-        </div>
-        <div className="flex justify-center">
+        <div className="flex justify-center ">
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">

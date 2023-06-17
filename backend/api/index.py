@@ -1,10 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from .login import with_login
+from ._auth.login import with_login
 import os
 from dotenv import load_dotenv
-import sys
-from .repository.pieces import get_pieces 
+from ._repository.pieces import get_pieces, get_pieces_id
+from ._clients.pdf_difficulty_service import get_difficulty
+from ._repository.neighbors import get_neighbors_piece, get_neighbors_piece_difficulty
 
 
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
@@ -36,12 +37,42 @@ def pieces():
     })
 
 
-
-@app.get('/api/demoAuth')  # only for demostration purposes
+@app.post('/api/pieces')
 @with_login
-def demo_auth(user):
-    print(user)
+def new_piece(user):
+    print(f"{user.email} uploaded a file")
+    score_file = request.files.get('score')
+    difficulty = get_difficulty(score_file)
     return jsonify({ 
-        "some": "data",
+        "data": {
+            "difficulty": difficulty,
+            "pieces": get_neighbors_piece_difficulty(difficulty)  # 13 closest pieces by difficulty
+        }
+    })
+
+
+@app.post('/auth')
+@with_login
+def auth(user):
+    return jsonify({
         "user": user
+    })
+
+@app.get('/api/pieces/<id>')
+def pieces_id(id):
+    args = request.args
+    id=int(args.get("id"))
+    data= get_pieces_id(id)
+    return jsonify({ 
+        "data": data
+    })
+
+@app.get('/api/pieces/<id>/neighbors')
+def pieces_id_neighbors(id):
+    args = request.args
+    id=int(args.get("id"))
+    size=int(args.get("size"))
+    array_neighbors= get_neighbors_piece(id)
+    return jsonify({ 
+        "array": array_neighbors
     })

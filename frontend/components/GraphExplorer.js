@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
-import { Zoom, applyMatrixToPoint } from '@visx/zoom';
+import { Zoom } from '@visx/zoom';
 import { localPoint } from '@visx/event';
 import { RectClipPath } from '@visx/clip-path';
-import genPhyllotaxis, {
-    GenPhyllotaxisFunction,
-    PhyllotaxisPoint,
-} from '@visx/mock-data/lib/generators/genPhyllotaxis';
-import { withTooltip, Tooltip, useTooltip, TooltipWithBounds } from '@visx/tooltip';
+import { useTooltip, TooltipWithBounds } from '@visx/tooltip';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
-import Link from 'next/link'
 
 const initialTransform = (width, height) => ({
-    scaleX: 450,
-    scaleY: 450,
+    scaleX: 300,
+    scaleY: 300,
     translateX: width / 2,
     translateY: height / 2,
     skewX: 0,
@@ -47,9 +42,9 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
             <Zoom
                 width={width}
                 height={height}
-                scaleXMin={220}
+                scaleXMin={110}
                 scaleXMax={1000}
-                scaleYMin={220}
+                scaleYMin={110}
                 scaleYMax={1000}
                 initialTransformMatrix={initialTransform(width, height)}
             >
@@ -158,3 +153,16 @@ export const PieceGraph = ({ pieces, onSelectPiece, getPieceColor, isPieceSelect
             </div>
 }
 
+export const grayscaleHex = (value) => {
+    const intValue = Math.round(value * 255);
+    const hexValue = intValue.toString(16).padStart(2, '0');
+    return `#${hexValue}${hexValue}${hexValue}`;
+  }
+  
+  export const mapRange = (value, fromMin, fromMax, toMin, toMax) => {
+    const range = fromMax - fromMin;
+    const scaledValue = (value - fromMin) / range;
+    const toRange = toMax - toMin;
+    return (scaledValue * toRange) + toMin;
+  }
+  
