@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react'
-import {useDropzone} from 'react-dropzone'
 import Head from 'next/head'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { API_HOST } from '@/config'

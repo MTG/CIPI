@@ -45,10 +45,6 @@ const SearchFilter = ({ onFilterChange }) => {
   const [min_difficulty, setMinDifficulty] = useState("");
   const [max_difficulty, setMaxDifficulty] = useState("");
 
-
-  const handleKeyChange = (event) => {
-    setKey(event.target.value);
-  };
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
   };
@@ -216,8 +212,6 @@ const ListExplorer = ({ pieces, filter }) => {
     </div>
   );
 }
-
-
 
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
