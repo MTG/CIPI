@@ -123,6 +123,16 @@ const LoadingStep = ({ loadingStartTime }) => {
     </>
 }
 
+const ErrorStep = ({  }) => {
+    return <>
+        <div className="flex w-full flex-col items-center justify-center">
+            <div className="mt-4 text-sm text-gray-600">
+                Something failed. Try again later...
+            </div>
+        </div>
+    </>
+}
+
 const ExploreStep = ({ file, difficulty, similarScores }) => {
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
@@ -154,6 +164,7 @@ const ExploreStep = ({ file, difficulty, similarScores }) => {
 const STEP_SELECT = 'select';
 const STEP_LOAD = 'load';
 const STEP_EXPLORE = 'explore';
+const STEP_ERROR = 'error';
 
 const uploadPdf = async (credential, file) => {
     const formData = new FormData();
@@ -203,7 +214,7 @@ export default function Upload() {
                 "key": null
             }, ...r.data.pieces])
             setStep(STEP_EXPLORE)
-        })
+        }).catch(() => setStep(STEP_ERROR))
     }
 
     return <>
@@ -217,6 +228,7 @@ export default function Upload() {
             { step === STEP_SELECT && <UploadStep file={file} setFile={setFile} nextStep={startUpload} requireLogin={requireLogin}/> }
             { step === STEP_LOAD && <LoadingStep loadingStartTime={loadingStartTime} /> }
             { step === STEP_EXPLORE && <ExploreStep difficulty={difficulty} similarScores={similarScores} file={file} /> }
+            { step === STEP_ERROR && <ErrorStep /> }
         </main>
     </>
 }
