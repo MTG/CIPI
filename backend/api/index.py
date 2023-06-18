@@ -21,9 +21,19 @@ def home():
 
 @app.get('/api/pieces')
 def pieces():
+    args = request.args
+    size=int(args.get("size"))
+    page=int(args.get("page"))
+    period=args.get("period")
+    min_difficulty=args.get("min_difficulty")
+    max_difficulty=args.get("max_difficulty")
+    input_string=args.get("input_string")
+    pieces, pages_count = get_pieces(size, page, period, min_difficulty, max_difficulty, input_string)
     return jsonify({ 
-       "_links": {},
-        "array": get_pieces()
+         "_links": {
+            "total_pages": pages_count
+        },
+        "array": pieces
     })
 
 
