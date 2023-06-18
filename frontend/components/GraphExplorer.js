@@ -6,8 +6,8 @@ import { useTooltip, TooltipWithBounds } from '@visx/tooltip';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
 const initialTransform = (width, height) => ({
-    scaleX: 300,
-    scaleY: 300,
+    scaleX: 110,
+    scaleY: 110,
     translateX: width / 2,
     translateY: height / 2,
     skewX: 0,
