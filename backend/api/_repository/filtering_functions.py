@@ -47,5 +47,3 @@ def apply_filters(page, cursor, size, period, min_difficulty, max_difficulty):
     cursor.execute(query_select, filtered_values )
    
     return cursor, total_pages
-
-

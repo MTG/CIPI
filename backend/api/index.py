@@ -46,7 +46,7 @@ def new_piece(user):
     return jsonify({ 
         "data": {
             "difficulty": difficulty,
-            "pieces": get_neighbors_piece_difficulty(difficulty)  # 13 closest pieces by difficulty
+            "pieces": get_neighbors_piece_difficulty(difficulty, 13)  # 13 closest pieces by difficulty
         }
     })
 
@@ -60,9 +60,7 @@ def auth(user):
 
 @app.get('/api/pieces/<id>')
 def pieces_id(id):
-    args = request.args
-    id=int(args.get("id"))
-    data= get_pieces_id(id)
+    data = get_pieces_id(id)
     return jsonify({ 
         "data": data
     })
@@ -72,7 +70,7 @@ def pieces_id_neighbors(id):
     args = request.args
     id=int(args.get("id"))
     size=int(args.get("size"))
-    array_neighbors= get_neighbors_piece(id)
+    array_neighbors= get_neighbors_piece(id, size)
     return jsonify({ 
         "array": array_neighbors
     })

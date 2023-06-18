@@ -1,58 +1,42 @@
 from .db import database
+from .pieces import get_row_dict, to_piece_dto
 
-def get_neighbors_piece(piece_id):
+def get_neighbors_piece(piece_id, size):
     sql = '''
         SELECT
-            neighbour.musicsheetid AS neighbour_id,
-            SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2)) AS distance
+            neighbour.*
         FROM
             musicsheet AS piece
         JOIN
             musicsheet AS neighbour ON neighbour.musicsheetid != piece.musicsheetid
         WHERE
-            piece.musicsheetid = %s;
+            piece.musicsheetid = %s
+        ORDER BY SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2))
+        LIMIT %s;
     '''
 
-
-
     with database() as cursor:
-        cursor.execute(sql, (piece_id,))
-        results = cursor.fetchall()
+        cursor.execute(sql, (piece_id, size))
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+        
+    return list(map(to_piece_dto, map(lambda r: get_row_dict(r, columns), rows)))
 
-    return results
 
-
-def get_neighbors_piece_difficulty(difficulty):
+def get_neighbors_piece_difficulty(difficulty, size):
     sql = '''
         SELECT
-            neighbour.musicsheetid AS neighbour_id
+            neighbour.*
         FROM
-            musicsheet AS piece
-        JOIN
-            musicsheet AS neighbour ON neighbour.musicsheetid != piece.musicsheetid
-        WHERE
-            piece.difficulty_predicted_x1::INTEGER = %s
-            OR piece.difficulty_predicted_x2::INTEGER = %s
-            OR piece.difficulty_predicted_x3::INTEGER = %s
-        ORDER BY
-            SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - piece.latent_map_x1::DOUBLE PRECISION, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - piece.latent_map_x2::DOUBLE PRECISION, 2)) ASC
-        LIMIT 10;
+            musicsheet AS neighbour
+        ORDER BY SQRT(POWER(neighbour.latent_map_x1::DOUBLE PRECISION - %s, 2) + POWER(neighbour.latent_map_x2::DOUBLE PRECISION - %s, 2))
+        LIMIT %s;
     '''
 
     with database() as cursor:
-        cursor.execute(sql, (int(difficulty), int(difficulty), int(difficulty)))
-        results = cursor.fetchall()
-
-    piece_ids = [result[0] for result in results]  # Extract the piece IDs from the tuples
-    return piece_ids
-
-
-
-
-
-
-""" difficulty = 4  # Example difficulty value
-neighbors = get_neighbors_piece_difficulty(difficulty)
-print(neighbors) """
-
+        cursor.execute(sql, (int(difficulty[0]), int(difficulty[0]), size))
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+        
+    return list(map(to_piece_dto, map(lambda r: get_row_dict(r, columns), rows)))
 

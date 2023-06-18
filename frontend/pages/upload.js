@@ -199,7 +199,7 @@ export default function Upload() {
 
         uploadPdf(credential, file).then(r => {
             setDifficulty(r.data.difficulty)
-            setSimilarScores([{
+            const selfPiece = {
                 "url": null,
                 "title": file?.name,
                 "period": null,
@@ -211,7 +211,8 @@ export default function Upload() {
                 },
                 "id": null,
                 "key": null
-            }, ...r.data.pieces])
+            };
+            setSimilarScores([selfPiece, ...r.data.pieces])
             setStep(STEP_EXPLORE)
         }).catch(() => setStep(STEP_ERROR))
     }
