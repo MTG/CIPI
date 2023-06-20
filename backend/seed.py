@@ -97,8 +97,19 @@ cursor.execute('''ALTER TABLE musicsheet ADD COLUMN normalized_difficulty DECIMA
 
 cursor.execute('''UPDATE musicsheet
 SET normalized_difficulty = ((CAST(difficulty_predicted_x1 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x2 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x3 AS DECIMAL) / 4) * 3);
-''')           
-               
+''')   
+
+cursor.execute('''
+    ALTER TABLE musicsheet ADD COLUMN ts tsvector
+    GENERATED ALWAYS AS (to_tsvector('english', work_title || ' ' || alternative_title || ' ' || composer)) STORED;
+
+''')
+      
+#Create a GIN index to make our searches faster
+cursor.execute('''
+    CREATE INDEX ts_idx ON musicsheet USING GIN (ts);
+
+''' )            
 
 conn.commit()
 cursor.close()
