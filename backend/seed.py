@@ -3,9 +3,6 @@ import sys
 from dotenv import load_dotenv, find_dotenv
 import psycopg2
 
-import numpy as np
-
-
 load_dotenv(find_dotenv())
 
 conn = psycopg2.connect(database=os.getenv("DATABASE_NAME"),
@@ -62,29 +59,33 @@ latent_map_x2 VARCHAR(8000)
 
 #user
 cursor.execute('''CREATE TABLE _user (
-mail VARCHAR(255) PRIMARY KEY,
-name VARCHAR(255) NOT NULL,
-surname VARCHAR(255) NOT NULL,
-study_years VARCHAR(255),
-assigned_level INT NOT NULL
+mail VARCHAR(8000) PRIMARY KEY,
+study_years VARCHAR(8000),
+piece1_id INT NOT NULL,
+difficulty_piece1 VARCHAR(8000) NOT NULL,
+piece2_id INT NOT NULL,
+difficulty_piece2 VARCHAR(8000) NOT NULL,
+piece3_id INT NOT NULL,
+difficulty_piece3 VARCHAR(8000) NOT NULL,
 )''')
 
 #feedback
-cursor.execute('''CREATE TABLE feedback (
-feedback_id INT PRIMARY KEY,
+cursor.execute('''CREATE TABLE feedback(
+feedback_id SERIAL PRIMARY KEY,
+user_mail VARCHAR(8000) NOT NULL,
 musicsheetid INT NOT NULL,
-mail VARCHAR(255) NOT NULL,
-rating INT NOT NULL,
-expressiveness INT NOT NULL,
-technical INT NOT NULL,
-reasoning VARCHAR(255),
+liked INT,
+disliked INT,
+comment VARCHAR(8000),
 FOREIGN KEY (musicsheetid) REFERENCES musicsheet (musicsheetid),
-FOREIGN KEY (mail) REFERENCES _user (mail)
+FOREIGN KEY (user_mail) REFERENCES _user (mail)
 )''')
 
+#insert data
 
+csv_file_name = os.path.join(sys.path[0], "only_one_piece.csv")
 
-with open("only_one_piece.csv", 'rb') as f:
+with open(csv_file_name, 'rb') as f:
     next(f) 
     cursor.copy_from(f, 'musicsheet', sep='$', columns=('url', 'work_title', 'alternative_title', 'composer', 'number_op', 'i_catalog', '_key', 'movements', 'composition_date', 'first_performance', 'first_publication', 'dedication', 'composer_period', 'piece_style', 'instrumentation', 'duration', 'extra_info', 'external_links', 'related_works', 'copyright', 'primary_sources', 'discography', 'translations', 'authorities', 'extra_locations', '_language', 'name_aliases', 'related_pages', 'librettist', 'difficulty_predicted_x1', 'difficulty_predicted_x2', 'difficulty_predicted_x3', 'latent_map_x1','latent_map_x2'))
 
@@ -93,14 +94,13 @@ cursor.execute('''
     WHERE difficulty_predicted_x1 = '' AND difficulty_predicted_x2 = '' AND difficulty_predicted_x3 = ''
 ''')
 
+cursor.execute('''ALTER TABLE musicsheet ADD COLUMN normalized_difficulty DECIMAL(5, 2)''')
+
+cursor.execute('''UPDATE musicsheet
+SET normalized_difficulty = ((CAST(difficulty_predicted_x1 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x2 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x3 AS DECIMAL) / 4) * 3);
+''')           
+             
 
 conn.commit()
 cursor.close()
 conn.close()
-
-
-
-
-
-
-
