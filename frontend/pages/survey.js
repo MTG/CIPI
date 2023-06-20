@@ -2,7 +2,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { useContext, createContext } from 'react';
-import { AuthContext } from '@/contexts/AuthContext'
+import { AuthContext } from '@/contexts/AuthContext';
+import { API_HOST } from '@/config';
 
 const SurveyContext = createContext();
 
@@ -28,9 +29,26 @@ const questions = [
   },
 ];
 
+const sendSurvey = async (credential, answers) => {
+  const formData = new FormData();
+
+  const response = await fetch(`${API_HOST}/api/pieces`, 
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authentication: `Bearer ${credential}`
+      },
+      body:  JSON.stringify({ answers })
+    }
+  );
+  const data = await response.json();
+  return data;
+}
+
 export default function Home() {
   const router = useRouter();
-  const { credential } = useContext(AuthContext);
+  const {credential} = useContext(AuthContext);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [surveyAnswers, setSurveyAnswers] = useState([]);
@@ -41,7 +59,7 @@ export default function Home() {
     setSelectedAnswer(answer);
   };
 
-  const handleNextClick = () => {
+  const handleNextClick = async () => {
     if (selectedAnswer !== '') {
       // Save the user's answer
       const answer = {
@@ -49,12 +67,16 @@ export default function Home() {
         answer: selectedAnswer,
       };
       setSurveyAnswers((prevAnswers) => [...prevAnswers, answer]);
+      
       if (currentQuestion === questions.length - 1) {
         // Submit survey
         console.log('Survey completed:', {
           userName: credential, // Include the user's name in the survey data
           answers: [...surveyAnswers, answer],
         });
+        const response = await sendSurvey(credential, [...surveyAnswers, answer]);
+        console.log('Survey response:', response);
+        
         setSurveyCompleted(true);
         //backend send --------------------------------------------------------------
         router.push('/');
