@@ -61,11 +61,11 @@ latent_map_x2 VARCHAR(8000)
 cursor.execute('''CREATE TABLE _user (
 mail VARCHAR(8000) PRIMARY KEY,
 study_years VARCHAR(8000),
-piece1_id INT NOT NULL,
+piece1_id VARCHAR(8000) NOT NULL,
 difficulty_piece1 VARCHAR(8000) NOT NULL,
-piece2_id INT NOT NULL,
+piece2_id VARCHAR(8000) NOT NULL,
 difficulty_piece2 VARCHAR(8000) NOT NULL,
-piece3_id INT NOT NULL,
+piece3_id VARCHAR(8000) NOT NULL,
 difficulty_piece3 VARCHAR(8000) NOT NULL
 )''')
 
