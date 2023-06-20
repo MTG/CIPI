@@ -73,9 +73,10 @@ export default function PiecePage ({}){
             <div className={'ml-2 text-sm font-medium text-gray-600'}> {piece.author} </div>
             <div className={'ml-2 text-2xl font-bold'}>{piece.title}</div>
 
-            <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty </div>
+            <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty</div>
             <div className="ml-2 h-5 w-full bg-neutral-200 dark:bg-neutral-600">
-            <DifficultyBar filled={piece.normalized_difficulty/100} />
+
+            <DifficultyBar filled={piece.difficulty/10} />
                 
             </div>
             <div className="flex justify-center mt-2">

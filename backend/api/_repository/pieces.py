@@ -15,10 +15,7 @@ def to_piece_dto(row_dict):
         "period": row_dict["composer_period"],
         "author": row_dict["composer"],
         "year": row_dict["first_publication"],
-        "difficulty": {
-            "x1": row_dict["latent_map_x1"],
-            "x2": row_dict["latent_map_x2"]
-        },
+        "difficulty": row_dict["normalized_difficulty"],
         "id": row_dict["musicsheetid"],
         "key": row_dict["_key"]
     }
