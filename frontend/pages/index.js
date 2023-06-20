@@ -40,62 +40,75 @@ const SearchBar = ({ onSearch }) => {
   );
 };
 
-const SearchFilter = ({ setFilters }) => {
-  const [key, setKey] = useState("");
+const SearchFilter = ({ onFilterChange }) => {
   const [period, setPeriod] = useState("");
-  const [difficulty, setDifficulty] = useState("");
+  const [min_difficulty, setMinDifficulty] = useState("");
+  const [max_difficulty, setMaxDifficulty] = useState("");
 
-  const handleKeyChange = (event) => {
-    setKey(event.target.value);
-  };
   const handlePeriodChange = (event) => {
     setPeriod(event.target.value);
   };
-  const handleDifficultyChange = (event) => {
-    setDifficulty(event.target.value);
+  const handleMinDifficultyChange = (event) => {
+    setMinDifficulty(event.target.value);
   };
-
+  const handleMaxDifficultyChange = (event) => {
+    setMaxDifficulty(event.target.value);
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
-    setFilters({ key, period, difficulty });
+    onFilterChange({ period, min_difficulty, max_difficulty });
   };
 
   return (
     <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
       <select
-        value={key}
-        onChange={handleKeyChange}
-        className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm"
-      >
-        <option value="">Select Signature Key</option>
-      </select>
-      <select
         value={period}
         onChange={handlePeriodChange}
         className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
         <option value="">Select Period</option>
-        <option value="romantic">Romantic</option>
-        <option value="classical">Classical</option>
-        <option value="early-20th">Early-20th</option>
-      </select>
-      <select
-        value={difficulty}
-        onChange={handleDifficultyChange}
-        className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm"
-        >
-        <option value="">Select Difficulty</option>
-        <option value="Easy">Easy (1-3)</option>
-        <option value="Medium">Medium (4-6)</option>
-        <option value="Hard">Hard (7-9)</option>
-      </select>
+        <option value="Romantic">Romantic</option>
+        <option value="Classical">Classical</option>
+        <option value="Early-20th">Early-20th</option>
+        <option value="Modern">Modern</option>
+        </select>
+      <div className="flex flex-col mr-2 mb-2 sm:mb-0">
+        <label htmlFor="minDifficulty" className="text-gray-900">
+          Minimum Difficulty: {min_difficulty}
+        </label>
+        <input
+          type="range"
+          id="minDifficulty"
+          min="1"
+          max="9"
+          value={min_difficulty}
+          onChange={handleMinDifficultyChange}
+          className="cursor-pointer bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+        />
+      </div>
+      <div className="flex flex-col mr-2 mb-2 sm:mb-0">
+        <label htmlFor="maxDifficulty" className="text-gray-900">
+          Maximum Difficulty: {max_difficulty}
+        </label>
+        <input
+          type="range"
+          id="maxDifficulty"
+          min="1"
+          max="9"
+          value={max_difficulty}
+          onChange={handleMaxDifficultyChange}
+          className="cursor-pointer bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+        />
+      </div>
+      <button
+        type="submit"
+        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
+      >
+        Filter
+      </button>
     </form>
   );
-}
+};
 
-const getRange = (start, stop) => stop > start? Array.from(
-  new Array((stop - start) + 1),
-  (_, i) => i + start
-): [];
 
 const ListExplorer = ({ pieces, filter }) => {
   const router = useRouter();
@@ -200,8 +213,6 @@ const ListExplorer = ({ pieces, filter }) => {
   );
 }
 
-
-
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
   const getPieceColor = ({ piece, isHovered, isSelected }) => {
@@ -222,29 +233,44 @@ export const GraphExplorer = ({ pieces }) => {
   </div>
 }
 
-const getPieces = async () => {
-  const response = await fetch(`${API_HOST}/api/pieces`);
+const getPieces = async (sz, pg, pr, mind, maxd) => {
+  const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
+    size: sz,
+    page: pg,
+    period: pr,
+    min_difficulty: mind,
+    max_difficulty: maxd,
+    input_string: ''}))
+
   const body = await response.json();
   return body;
 }
+
+//without period filter
+const getPiecesDefault = async (sz, pg, mind, maxd, is) => {
+  const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
+    size: sz,
+    page: pg,
+    min_difficulty: mind,
+    max_difficulty: maxd,
+    input_string: is}))
+
+  const body = await response.json();
+  return body;
+}
+
 
 export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
-
   const [searchFilter, setSearchFilter] = useState({
-    key: '',
     period: '',
-    difficulty: ''
-  });
+    min_difficulty: 1,
+    max_difficulty: 9});
 
 
   const { requireLogin, credential } = useContext(AuthContext);
-
-  useEffect(() => {
-    getPieces(credential).then(r => setPieces(r['array']))
-  }, []);  
 
   const handleSearch = (searchTerm) => {
     const filteredPieces = pieces.filter((piece) => {
@@ -261,13 +287,37 @@ export default function Home() {
     setSearchResult(filteredPieces);
   };
 
-  const handleFilterChange = (event) => {
-    setSearchFilter({ ...searchFilter, [name]: value });
+  const handleFilterChange = (filter) => {
+    setSearchFilter(filter);
+  
+    const { period, min_difficulty, max_difficulty } = filter;
+    
+    const minDifficultyValue = min_difficulty || 1;
+    const maxDifficultyValue = max_difficulty || 9;
+
+    if (period == 'Romantic' || period == 'Classical' || period == 'Early-20th' || period == 'Modern')
+    {
+     getPieces(1000, 1, period, minDifficultyValue, maxDifficultyValue, '')
+      .then((r) => {
+        setPieces(r['array']);
+        setSearchResult(null); // Reset search results when filters change
+      });
+    }
+    else
+    {
+     getPiecesDefault(1000, 1, minDifficultyValue, maxDifficultyValue, '')
+      .then((r) => {
+        setPieces(r['array']);
+        setSearchResult(null); // Reset search results when filters change
+      });
+    }
   };
 
-  const filteredPieces = searchFilter?.period
-    ? searchResult.filter((piece) => piece.period === searchFilter.period)
-    : pieces;
+    const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    //Store PDF in folder to be read with OMR
+    console.log("Uploaded file:", file);
+  };
 
   // example of how to use the login
   useEffect(() => {
@@ -285,29 +335,33 @@ export default function Home() {
         <meta name="description" content="Generated by create next app" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.png" />
-
       </Head>
       <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
         <div className="flex pb-4">
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
           <div className="flex-1" />
-          <Link href="upload"><button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm">Upload PDF</button></Link>
+          <Link href="upload">
+            <button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm">
+              Upload PDF
+            </button>
+          </Link>
         </div>
         <div className="flex justify-center ">
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          <SearchFilter filter={searchFilter} onFilterChange={handleFilterChange} />
+          <SearchFilter onFilterChange={handleFilterChange} />
         </div>
-
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
             <GraphExplorer pieces={pieces} />
           </div>
         )}
-        {!mapMode && <div className="flex justify-center flex-1 overflow-hidden">
-          <ListExplorer pieces={searchResult?.length > 0 ? searchResult : filteredPieces} filter={searchFilter} />
-        </div>}
+        {!mapMode && (
+          <div className="flex justify-center flex-1 overflow-hidden">
+            <ListExplorer pieces={searchResult?.length > 0 ? searchResult : pieces} filter={searchFilter} />
+          </div>
+        )}
       </main>
     </>
   );

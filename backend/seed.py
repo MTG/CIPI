@@ -98,7 +98,7 @@ cursor.execute('''ALTER TABLE musicsheet ADD COLUMN normalized_difficulty DECIMA
 cursor.execute('''UPDATE musicsheet
 SET normalized_difficulty = ((CAST(difficulty_predicted_x1 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x2 AS DECIMAL) / 8) * 3 + (CAST(difficulty_predicted_x3 AS DECIMAL) / 4) * 3);
 ''')           
-             
+               
 
 conn.commit()
 cursor.close()

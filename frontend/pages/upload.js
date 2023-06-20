@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react'
-import {useDropzone} from 'react-dropzone'
 import Head from 'next/head'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { API_HOST } from '@/config'
@@ -7,6 +6,7 @@ import { AuthContext } from '@/contexts/AuthContext'
 import { DifficultyBar } from '@/components/DifficultyBar'
 import { PieceGraph, grayscaleHex, mapRange } from '@/components/GraphExplorer'
 import { PieceCard } from '@/components/PieceCard'
+import {useDropzone} from 'react-dropzone'
 
 function Dropzone({ file, setFile, requireLogin }) {
     const noFileText = "Upload a PDF score";
