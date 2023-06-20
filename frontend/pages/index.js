@@ -200,8 +200,6 @@ const ListExplorer = ({ pieces, filter }) => {
   );
 }
 
-
-
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
   const getPieceColor = ({ piece, isHovered, isSelected }) => {
@@ -232,6 +230,7 @@ export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
+  const router = useRouter();
 
   const [searchFilter, setSearchFilter] = useState({
     key: '',
@@ -239,8 +238,7 @@ export default function Home() {
     difficulty: ''
   });
 
-
-  const { requireLogin, credential } = useContext(AuthContext);
+  const {requireLogin, credential } = useContext(AuthContext);
 
   useEffect(() => {
     getPieces(credential).then(r => setPieces(r['array']))
@@ -278,6 +276,14 @@ export default function Home() {
     return () => window.clearTimeout(timer);
   }, [mapMode])
 
+  const handleSurveyUploadPDF = () => {
+    if (credential) {
+      router.push('/survey');
+    } else {
+      router.push('/upload');
+    }
+  };
+
   return (
     <>
       <Head>
@@ -290,8 +296,8 @@ export default function Home() {
       <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
         <div className="flex pb-4">
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
-          <div className="flex-1" />
-          <Link href="upload"><button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm">Upload PDF</button></Link>
+          <div className="font-bold text-gray-600 flex-1 text-center">CIPI</div>
+          <Link href="upload"><button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleSurveyUploadPDF}>Upload PDF</button></Link>
         </div>
         <div className="flex justify-center ">
           <SearchBar onSearch={handleSearch} />

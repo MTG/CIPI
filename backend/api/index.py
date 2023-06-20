@@ -50,8 +50,6 @@ def auth(user):
 
 @app.get('/api/pieces/<id>')
 def pieces_id(id):
-    args = request.args
-    id=int(args.get("id"))
     data= get_pieces_id(id)
     return jsonify({ 
         "data": data
