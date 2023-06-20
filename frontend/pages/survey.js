@@ -32,7 +32,7 @@ const questions = [
 const sendSurvey = async (credential, answers) => {
   const formData = new FormData();
 
-  const response = await fetch(`${API_HOST}/api/pieces`, 
+  const response = await fetch(`${API_HOST}/api/user`, 
     {
       method: 'POST',
       headers: {
@@ -69,17 +69,9 @@ export default function Home() {
       setSurveyAnswers((prevAnswers) => [...prevAnswers, answer]);
       
       if (currentQuestion === questions.length - 1) {
-        // Submit survey
-        console.log('Survey completed:', {
-          userName: credential, // Include the user's name in the survey data
-          answers: [...surveyAnswers, answer],
-        });
         const response = await sendSurvey(credential, [...surveyAnswers, answer]);
-        console.log('Survey response:', response);
-        
         setSurveyCompleted(true);
-        //backend send --------------------------------------------------------------
-        router.push('/');
+        router.push('/upload');
       } else {
         // Go to the next question
         setCurrentQuestion(currentQuestion + 1);

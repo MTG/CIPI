@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
+from backend.api._repository.user import insert_user_data
 from ._auth.login import with_login
 import os
 from dotenv import load_dotenv
@@ -48,9 +50,34 @@ def auth(user):
         "user": user
     })
 
+
+@app.post('/api/user')
+@with_login
+def insert_user(user):
+    print(f"{user.email} ")
+    user_data = request.get_json()
+    print(f"{user_data} ")
+    user_email=user.email
+    insert_user_data(user_data, user_email)
+    return jsonify({})
+
+
+@app.post('/api/feedback')
+@with_login
+def insert_feedback(user):
+    print(f"{user.email} uploaded a file")
+    data = request.get_json()
+    user = user.email
+    piece = data.get('musicsheetid')
+    liked = data.get('liked', 0) #default values 
+    disliked = data.get('disliked', 0)
+    comment = data.get('comment', '')
+    insert_feedback(user, piece, liked, disliked, comment)
+    return 'Data inserted successfully'
+
 @app.get('/api/pieces/<id>')
 def pieces_id(id):
-    data= get_pieces_id(id)
+    data = get_pieces_id(id)
     return jsonify({ 
         "data": data
     })
@@ -60,7 +87,7 @@ def pieces_id_neighbors(id):
     args = request.args
     id=int(args.get("id"))
     size=int(args.get("size"))
-    array_neighbors= get_neighbors_piece(id)
+    array_neighbors= get_neighbors_piece(id, size)
     return jsonify({ 
         "array": array_neighbors
     })

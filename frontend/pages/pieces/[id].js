@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
-import Link from 'next/link';
 import Head from 'next/head';
-/*import { PieceGraph } from '../components/GraphExplorer'*/
+import { PieceGraph } from '../../components/GraphExplorer';
+import { PieceCard } from '@/components/PieceCard'
 import React from 'react';
 import { DifficultyBar } from '@/components/DifficultyBar';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
@@ -14,16 +14,48 @@ const getPiece = async (id) => {
     console.log(data.data)
     return data.data;
 }
+const getPieces = async (id) => {
+    const response = await fetch(`${API_HOST}/api/pieces/${id}/neighbors`);
+    const body = await response.json();
+    return body;
+}
+
+export const GraphExplorer = ({ pieces }) => {
+    const [selectedPiece, setSelectedPiece] = useState(null)
+    const getPieceColor = ({ piece, isHovered, isSelected }) => {
+    const mappedDifficulty = 1 - mapRange((piece.normalized_difficulty) / 2, -5, 5, 0.2, 0.7);
+    if (isSelected) return router.push(`/pieces/${piece.id}`);
+    if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
+    return grayscaleHex(mappedDifficulty);
+    };
+    return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
+        <PieceGraph
+            pieces={pieces}
+            onSelectPiece={setSelectedPiece}
+            selectedPiece={selectedPiece}
+            getPieceColor={getPieceColor}
+            isPieceSelectable={() => true}
+        />
+        </div>
+}
+
 
 export default function PiecePage ({}){
     const router = useRouter();
     const { id } = router.query;
+    const [pieces, setPieces] = useState([]);
+
     const [liked, setLiked] = useState(false);
     const [disliked, setDisliked] = useState(false);
+    
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [comment, setComment] = useState('');
+    
     const [piece, setPiece] = useState([]);
 
+    useEffect(() => {
+        getPieces(id).then(r => setPieces(r['array']))
+      }, []); 
 
     useEffect(() => {
         getPiece(id).then((r) => setPiece(r));
@@ -76,7 +108,7 @@ export default function PiecePage ({}){
             <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty</div>
             <div className="ml-2 h-5 w-full bg-neutral-200 dark:bg-neutral-600">
 
-            <DifficultyBar filled={piece.difficulty/10} />
+            <DifficultyBar filled={piece.normalized_difficulty/10} />
                 
             </div>
             <div className="flex justify-center mt-2">
@@ -124,6 +156,11 @@ export default function PiecePage ({}){
                 <p className={`rounded-full ml-5 mt-6 w-3 h-3 bg-red-600`}/>
                 <p className={'pt-5 ml-2 text-sm font-medioum text-gray-500 hover:underline'}>{piece.title} </p>
              </div>
+
+             <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
+                <GraphExplorer pieces={pieces} />
+             </div>
+
         </div>
     </div>
     </>
