@@ -249,8 +249,8 @@ export default function Home() {
 
   const [searchFilter, setSearchFilter] = useState({
     period: '',
-    min_difficulty: 1,
-    max_difficulty: 9,
+    minDifficulty: 1,
+    maxDifficulty: 9,
     query: ''});
 
   const {requireLogin, credential } = useContext(AuthContext);
