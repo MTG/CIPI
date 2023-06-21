@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from ._repository.pieces import get_pieces, get_pieces_id
 from ._clients.pdf_difficulty_service import get_difficulty
 from ._repository.neighbors import get_neighbors_piece, get_neighbors_piece_difficulty
-
+from ._repository.feedback import insert_into_feedback
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
 load_dotenv(".env")
 
@@ -72,7 +72,7 @@ def insert_feedback(user):
     liked = data.get('liked', 0) #default values 
     disliked = data.get('disliked', 0)
     comment = data.get('comment', '')
-    insert_feedback(user, piece, liked, disliked, comment)
+    insert_into_feedback(user, piece, liked, disliked, comment)
     return 'Data inserted successfully'
 
 @app.get('/api/pieces/<id>')
