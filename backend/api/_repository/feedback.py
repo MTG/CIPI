@@ -5,6 +5,6 @@ def insert_feedback_data(user, piece, liked, disliked, comment):
         cursor.execute('''
         INSERT INTO feedback (user, piece, liked, disliked, comment)
         VALUES (%s, %s, %s, %s, %s)
-    ''', (user, piece, liked, disliked, comment))
+        ''', (user, piece, liked, disliked, comment))
         
         
