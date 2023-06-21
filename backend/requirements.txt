@@ -24,6 +24,7 @@ replicate==0.8.3
 requests==2.31.0
 rsa==4.9
 six==1.16.0
+typing-extensions==4.6.3
 urllib3==1.26.15
 Werkzeug==2.3.4
 zipp==3.15.0

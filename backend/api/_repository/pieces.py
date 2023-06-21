@@ -79,10 +79,9 @@ def to_piece_dto(row_dict):
         "author": row_dict["composer"],
         "year": row_dict["first_publication"],
         "difficulty": {
-                    "x1": float(row_dict["latent_map_x1"]),
-                    "x2": float(row_dict["latent_map_x2"])
-                },
-        "normalized_difficulty": row_dict["normalized_difficulty"],
+            "x1": row_dict["latent_map_x1"],
+            "x2": row_dict["latent_map_x2"]
+        },
         "id": row_dict["musicsheetid"],
         "key": row_dict["_key"]
     }
