@@ -51,7 +51,7 @@ const SearchFilter = ({ setFilter }) => {
   const handleMaxDifficultyChange = (event) => setMaxDifficulty(event.target.value);
 
   useEffect(() => {
-    setFilter({ period, minDifficulty, maxDifficulty });
+    setFilter(x => ({...x, period, minDifficulty, maxDifficulty }));
   }, [period, minDifficulty, maxDifficulty])
 
   return (
@@ -227,32 +227,18 @@ export const GraphExplorer = ({ pieces }) => {
   </div>
 }
 
-const getPieces = async (sz, pg, pr, mind, maxd) => {
+const getPieces = async (sz, pg, pr, mind, maxd, query) => {
   const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
     size: sz,
     page: pg,
     period: pr,
     min_difficulty: mind,
     max_difficulty: maxd,
-    input_string: ''}))
+    input_string: query}))
 
   const body = await response.json();
   return body;
 }
-
-//without period filter
-const getPiecesDefault = async (sz, pg, mind, maxd, is) => {
-  const response = await fetch(`${API_HOST}/api/pieces?` + new URLSearchParams({
-    size: sz,
-    page: pg,
-    min_difficulty: mind,
-    max_difficulty: maxd,
-    input_string: is}))
-
-  const body = await response.json();
-  return body;
-}
-
 
 export default function Home() {
   const [pieces, setPieces] = useState([]);
@@ -264,39 +250,18 @@ export default function Home() {
   const [searchFilter, setSearchFilter] = useState({
     period: '',
     min_difficulty: 1,
-    max_difficulty: 9});
+    max_difficulty: 9,
+    query: ''});
 
   const {requireLogin, credential } = useContext(AuthContext);
 
-<<<<<<< HEAD
-  const { requireLogin } = useContext(AuthContext);
-=======
-  useEffect(() => {
-    getPieces(credential).then(r => setPieces(r['array']))
-  }, []);  
-
-  
->>>>>>> parent of 3ed310c (Merge pull request #36 from miquelvir/revert-35-feat-piece-overview-page)
-
   const handleSearch = (searchTerm) => {
-    const filteredPieces = pieces.filter((piece) => {
-      const { title, period, author } = piece;
-      const searchLower = searchTerm.toLowerCase();
-      // Check if the search term is present in the title, period, or author
-      return (
-        title.toLowerCase().includes(searchLower) ||
-        period.toLowerCase().includes(searchLower) ||
-        author.toLowerCase().includes(searchLower)
-      );
-    });
-  
-    setSearchResult(filteredPieces);
+    setSearchFilter({...searchFilter, query: searchTerm})
   };
 
   useEffect(() => {
-    const { period, minDifficulty, maxDifficulty } = searchFilter;
-    console.log(period)
-    getPieces(1000, 1, period, minDifficulty, maxDifficulty, '')
+    const { period, minDifficulty, maxDifficulty, query } = searchFilter;
+    getPieces(1000, 1, period, minDifficulty, maxDifficulty, query)
       .then((r) => {
         setPieces(r['array']);
         setSearchResult(null); // Reset search results when filters change
@@ -313,11 +278,8 @@ export default function Home() {
 
   const handleSurveyUploadPDF = () => {
     if (credential && !hasData) {
-      console.log(hasData)
       router.push('/survey');
     } else {
-      console.log("else")
-      console.log(hasData)
       router.push('/upload');
     }
   };

@@ -61,3 +61,6 @@ vercel dev
 ```bash
 vercel deploy
 ```
+
+# Seeding
+Run `seed.py` to seed the database.

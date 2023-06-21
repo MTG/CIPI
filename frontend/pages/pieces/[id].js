@@ -9,6 +9,7 @@ import { useState, useEffect, useContext } from 'react';
 import { API_HOST } from '@/config';
 import { AuthContext } from '@/contexts/AuthContext';
 import { useHasUserData } from '@/hooks/useHasUserData';
+import Link from 'next/link'
 
 const getPiece = async (id) => {
     const response = await fetch(`${API_HOST}/api/pieces/${id}`);
@@ -22,8 +23,6 @@ const getPieces = async (id) => {
 }
 
 export const GraphExplorer = ({ pieces, id }) => {
-
-    console.log(id)
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
         const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
@@ -80,7 +79,6 @@ export default function PiecePage ({}){
     };
     const handleLike = async() => {
         requireLogin({ allowSkip: false }).then(isLoggedIn => {
-            console.log(isLoggedIn)
             if (!isLoggedIn) return
             if (!hasData) return router.push('/survey')
                 setLiked(!liked);
@@ -98,7 +96,6 @@ export default function PiecePage ({}){
         })
     };
     const handleDislike = async() => {requireLogin({ allowSkip: false }).then(isLoggedIn => {
-        console.log(isLoggedIn)
         if (!isLoggedIn) return
         if(!hasData) return router.push('/survey')
         setDisliked(!disliked);
@@ -122,7 +119,6 @@ export default function PiecePage ({}){
     };
     const handleCommentSubmit = async(e) => {
         requireLogin({ allowSkip: false }).then(isLoggedIn => {
-            console.log(isLoggedIn)
             if (!isLoggedIn) return
             if(!hasData) return router.push('/survey')
         e.preventDefault();
@@ -169,7 +165,7 @@ export default function PiecePage ({}){
         
         <div className={'min-h-screen flex flex-col w-screen h-screen overflow-hidden p-2'}>
 
-        <div className={'ml-2 font-bold text-gray-600 text-center'} > CIPI </div>
+        <Link href="/"><div className={'ml-2 font-bold text-gray-600 text-center'} > CIPI </div></Link>
         
         <div className={'my-10 px-10 flex flex-1 flex-col'}>
             <div className={'ml-2 text-sm font-medium text-gray-600'}> {piece.author} </div>

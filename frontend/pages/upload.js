@@ -7,6 +7,7 @@ import { DifficultyBar } from '@/components/DifficultyBar'
 import { PieceGraph, grayscaleHex, mapRange } from '@/components/GraphExplorer'
 import { PieceCard } from '@/components/PieceCard'
 import {useDropzone} from 'react-dropzone'
+import Link from 'next/link'
 
 function Dropzone({ file, setFile, requireLogin }) {
     const noFileText = "Upload a PDF score";
@@ -18,7 +19,6 @@ function Dropzone({ file, setFile, requireLogin }) {
         },
         onDrop: (acceptedFiles) => {
             requireLogin({ allowSkip: false }).then(isLoggedIn => {
-                console.log(isLoggedIn)
                 if (!isLoggedIn) return
                 const selectedFile = acceptedFiles[0] === undefined? 
                     null : 
@@ -227,11 +227,16 @@ export default function Upload() {
             <meta name="viewport" content="width=device-width, initial-scale=1" />
             <link rel="icon" href="/favicon.png" />
         </Head>
-        <main className="min-h-screen items-center justify-center flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
-            { step === STEP_SELECT && <UploadStep file={file} setFile={setFile} nextStep={startUpload} requireLogin={requireLogin}/> }
-            { step === STEP_LOAD && <LoadingStep loadingStartTime={loadingStartTime} /> }
-            { step === STEP_EXPLORE && <ExploreStep difficulty={difficulty} similarScores={similarScores} file={file} /> }
-            { step === STEP_ERROR && <ErrorStep /> }
+        <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
+            <div className="flex pb-4 pt-4">
+                <div className="font-bold text-gray-600 flex-1 text-center"><Link href="/">CIPI</Link></div>
+            </div>
+            <div className="items-center justify-center flex flex-col flex-1">
+                { step === STEP_SELECT && <UploadStep file={file} setFile={setFile} nextStep={startUpload} requireLogin={requireLogin}/> }
+                { step === STEP_LOAD && <LoadingStep loadingStartTime={loadingStartTime} /> }
+                { step === STEP_EXPLORE && <ExploreStep difficulty={difficulty} similarScores={similarScores} file={file} /> }
+                { step === STEP_ERROR && <ErrorStep /> }
+            </div>
         </main>
     </>
 }

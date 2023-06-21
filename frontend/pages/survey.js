@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useContext, createContext } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { API_HOST } from '@/config';
-
+import Link from 'next/link'
 
 const questions = [
   {
@@ -92,7 +92,7 @@ export default function Home() {
         </Head>
         <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
         <div className="flex pb-4">
-          <div className="font-bold text-gray-600 flex-1 text-center">CIPI</div>
+          <div className="font-bold text-gray-600 flex-1 text-center"><Link href="/">CIPI</Link></div>
         </div>
         <div className="flex items-center justify-center pt-60">
           <div className="border border-neutral-950 rounded-lg p-4 flex flex-col lg:flex-row">
