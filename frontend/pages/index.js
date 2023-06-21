@@ -6,6 +6,7 @@ import { PieceGraph, grayscaleHex, mapRange } from '../components/GraphExplorer'
 import { useRouter } from 'next/router'
 import { AuthContext } from '@/contexts/AuthContext'
 import { PieceCard } from '@/components/PieceCard'
+import { useHasUserData } from '@/hooks/useHasUserData'
 
 const MapModeToggle = ({ mapMode, setMapMode }) => {
   return <div><label className="relative inline-flex items-center mr-5 cursor-pointer">
@@ -228,18 +229,14 @@ const getPieces = async () => {
   return body;
 }
 
-const getHasUserData = async () => {
-  const response = await fetch(`${API_HOST}/api/user`);
-  const body = await response.json();
-  return body;
-}
+
 
 export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const router = useRouter();
-  const [hasData, setHasUserData] = useState(false);
+  const hasData = useHasUserData();
 
   const [searchFilter, setSearchFilter] = useState({
     key: '',
@@ -253,10 +250,7 @@ export default function Home() {
     getPieces(credential).then(r => setPieces(r['array']))
   }, []);  
 
-  useEffect(() => {
-    getHasUserData(credential).then(r => setHasUserData(r['hasData'])).catch(() => console.log("no user data because not logged in"))
-  }, [credential]);
-
+  
 
   const handleSearch = (searchTerm) => {
     const filteredPieces = pieces.filter((piece) => {
@@ -292,8 +286,11 @@ export default function Home() {
 
   const handleSurveyUploadPDF = () => {
     if (credential && !hasData) {
+      console.log(hasData)
       router.push('/survey');
     } else {
+      console.log("else")
+      console.log(hasData)
       router.push('/upload');
     }
   };
@@ -313,7 +310,7 @@ export default function Home() {
         <div className="flex pb-4">
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
           <div className="font-bold text-gray-600 flex-1 text-center">CIPI</div>
-          <Link href="upload"><button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleSurveyUploadPDF}>Upload PDF</button></Link>
+         <button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleSurveyUploadPDF}>Upload PDF</button>
         </div>
         <div className="flex justify-center ">
           <SearchBar onSearch={handleSearch} />

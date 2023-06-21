@@ -8,6 +8,7 @@ import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { useState, useEffect, useContext } from 'react';
 import { API_HOST } from '@/config';
 import { AuthContext } from '@/contexts/AuthContext';
+import { useHasUserData } from '@/hooks/useHasUserData';
 
 const getPiece = async (id) => {
     const response = await fetch(`${API_HOST}/api/pieces/${id}`);
@@ -21,12 +22,13 @@ const getPieces = async (id) => {
 }
 
 export const GraphExplorer = ({ pieces, id }) => {
-    console.log(pieces)
+
+    console.log(id)
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
         const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
         if (isSelected) return '#dc2626';
-        if (piece.id === id) return '#ffa19c'
+        if (piece.id == id) return '#ffa19c';
         if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
         return grayscaleHex(mappedDifficulty);
     };
@@ -47,7 +49,7 @@ export const GraphExplorer = ({ pieces, id }) => {
 export default function PiecePage ({}){
     const router = useRouter();
     const { id } = router.query;
-    
+    const hasData = useHasUserData();
 
     const [piece, setPiece] = useState(null);
     const [pieces, setPieces] = useState([]);
@@ -58,10 +60,7 @@ export default function PiecePage ({}){
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [comment, setComment] = useState('');
 
-    const {credential} = useContext(AuthContext);
-
-    
-    console.log(piece)
+    const {requireLogin, credential} = useContext(AuthContext);
 
     useEffect(() => {
         if( id != undefined){
@@ -75,27 +74,33 @@ export default function PiecePage ({}){
         }
     }, [id]);
 
+
     const handleUrl = () => {
         window.location.href = piece.url; 
     };
     const handleLike = async() => {
-            setLiked(!liked);
-            setDisliked(false);
-            setShowCommentBox(false);
-            setComment('');
-            const feedbackData = {
-                musicsheetid: id,
-                liked: !liked ? 1 : 0,
-                disliked: 0,
-                comment: ''
-            };
+        requireLogin({ allowSkip: false }).then(isLoggedIn => {
+            console.log(isLoggedIn)
+            if (!isLoggedIn) return
+            if (!hasData) return router.push('/survey')
+                setLiked(!liked);
+                setDisliked(false);
+                setShowCommentBox(false);
+                setComment('');
+                const feedbackData = {
+                    musicsheetid: id,
+                    liked: !liked ? 1 : 0,
+                    disliked: 0,
+                    comment: ''
+                };
 
-        if (credential){
-            const response = await sendFeedbackData(credential, feedbackData);
-        }
-        
+            const response =  sendFeedbackData(credential, feedbackData);
+        })
     };
-    const handleDislike = async() => {
+    const handleDislike = async() => {requireLogin({ allowSkip: false }).then(isLoggedIn => {
+        console.log(isLoggedIn)
+        if (!isLoggedIn) return
+        if(!hasData) return router.push('/survey')
         setDisliked(!disliked);
         setLiked(false);
         if (disliked) {
@@ -108,14 +113,18 @@ export default function PiecePage ({}){
             disliked: !disliked ? 1 : 0,
             comment: ''
         };
-        if (credential){
-            const response = await sendFeedbackData(credential, feedbackData);
-        }
+        const response = sendFeedbackData(credential, feedbackData);
+        
+    })
     };
     const handleCommentChange = (e) => {
         setComment(e.target.value);
     };
     const handleCommentSubmit = async(e) => {
+        requireLogin({ allowSkip: false }).then(isLoggedIn => {
+            console.log(isLoggedIn)
+            if (!isLoggedIn) return
+            if(!hasData) return router.push('/survey')
         e.preventDefault();
         const feedbackData = {
             musicsheetid: id,
@@ -125,12 +134,14 @@ export default function PiecePage ({}){
         };
         
         if (credential){
-            const response = await sendFeedbackData(credential, feedbackData);
+            const response = sendFeedbackData(credential, feedbackData);
         }
     
         // Clear comment field
         setComment('');
+    })
     };
+
 
     const sendFeedbackData = async (credential, data) => {
         const response = await fetch(`${API_HOST}/api/feedback`, {
@@ -210,7 +221,7 @@ export default function PiecePage ({}){
             <div className="flex justify-center">
                 <p className={'pt-5 ml-2 text-sm font-bold'}>Explore pieces of similar difficulty to: </p>
           
-                <p className={`rounded-full ml-5 mt-6 w-3 h-3 bg-red-600`}/>
+                <p className={`rounded-full ml-5 mt-6 w-3 h-3 bg-red-300`}/>
                 <p className={'pt-5 ml-2 text-sm font-medioum text-gray-500 hover:underline'}>{piece.title} </p>
              </div>
 
