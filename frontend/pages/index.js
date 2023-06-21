@@ -73,29 +73,29 @@ const SearchFilter = ({ setFilter }) => {
             value={minDifficulty}
             onChange={handleMinDifficultyChange}
             className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
-            <option value={1}>Difficulty &gt; 1</option>
-            <option value={2}>Difficulty &gt; 2</option>
-            <option value={3}>Difficulty &gt; 3</option>
-            <option value={4}>Difficulty &gt; 4</option>
-            <option value={5}>Difficulty &gt; 5</option>
-            <option value={6}>Difficulty &gt; 6</option>
-            <option value={7}>Difficulty &gt; 7</option>
-            <option value={8}>Difficulty &gt; 8</option>
-            <option value={9}>Difficulty &gt; 9</option>
+            <option value={1}>Difficulty &ge; 1</option>
+            <option value={2}>Difficulty &ge; 2</option>
+            <option value={3}>Difficulty &ge; 3</option>
+            <option value={4}>Difficulty &ge; 4</option>
+            <option value={5}>Difficulty &ge; 5</option>
+            <option value={6}>Difficulty &ge; 6</option>
+            <option value={7}>Difficulty &ge; 7</option>
+            <option value={8}>Difficulty &ge; 8</option>
+            <option value={9}>Difficulty &ge; 9</option>
           </select>
           <select
             value={maxDifficulty}
             onChange={handleMaxDifficultyChange}
             className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
-            <option value={1}>Difficulty &lt; 1</option>
-            <option value={2}>Difficulty &lt; 2</option>
-            <option value={3}>Difficulty &lt; 3</option>
-            <option value={4}>Difficulty &lt; 4</option>
-            <option value={5}>Difficulty &lt; 5</option>
-            <option value={6}>Difficulty &lt; 6</option>
-            <option value={7}>Difficulty &lt; 7</option>
-            <option value={8}>Difficulty &lt; 8</option>
-            <option value={9}>Difficulty &lt; 9</option>
+            <option value={1}>Difficulty &le; 1</option>
+            <option value={2}>Difficulty &le; 2</option>
+            <option value={3}>Difficulty &le; 3</option>
+            <option value={4}>Difficulty &le; 4</option>
+            <option value={5}>Difficulty &le; 5</option>
+            <option value={6}>Difficulty &le; 6</option>
+            <option value={7}>Difficulty &le; 7</option>
+            <option value={8}>Difficulty &le; 8</option>
+            <option value={9}>Difficulty &le; 9</option>
           </select>
     </div>
   );
