@@ -226,11 +226,18 @@ const getPieces = async () => {
   return body;
 }
 
+const getHasUserData = async () => {
+  const response = await fetch(`${API_HOST}/api/user`);
+  const body = await response.json();
+  return body;
+}
+
 export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const router = useRouter();
+  const [hasData, setHasUserData] = useState(false);
 
   const [searchFilter, setSearchFilter] = useState({
     key: '',
@@ -243,6 +250,11 @@ export default function Home() {
   useEffect(() => {
     getPieces(credential).then(r => setPieces(r['array']))
   }, []);  
+
+  useEffect(() => {
+    getHasUserData(credential).then(r => setHasUserData(r['hasData'])).catch(() => console.log("no user data because not logged in"))
+  }, [credential]);
+
 
   const handleSearch = (searchTerm) => {
     const filteredPieces = pieces.filter((piece) => {
@@ -277,12 +289,14 @@ export default function Home() {
   }, [mapMode])
 
   const handleSurveyUploadPDF = () => {
-    if (credential) {
+    if (credential && !hasData) {
       router.push('/survey');
     } else {
       router.push('/upload');
     }
   };
+
+  
 
   return (
     <>

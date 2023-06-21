@@ -2,7 +2,7 @@ from backend.api._repository.feedback import insert_feedback_data
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from backend.api._repository.user import insert_user_data
+from backend.api._repository.user import has_user_data, insert_user_data
 from ._auth.login import with_login
 import os
 from dotenv import load_dotenv
@@ -62,6 +62,14 @@ def insert_user(user):
     return jsonify({})
 
 
+@app.get('/api/user')
+@with_login
+def get_user(user):
+    user_email=user.email
+    return jsonify({"hasData":has_user_data(user_email)})
+
+
+
 @app.post('/api/feedback')
 @with_login
 def insert_feedback(user):
@@ -89,3 +97,4 @@ def pieces_id_neighbors(id: int, size: int = 10):
     return jsonify({ 
         "array": array_neighbors
     })
+

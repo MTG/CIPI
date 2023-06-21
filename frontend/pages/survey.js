@@ -5,7 +5,6 @@ import { useContext, createContext } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { API_HOST } from '@/config';
 
-const SurveyContext = createContext();
 
 const questions = [
   {
@@ -52,7 +51,6 @@ export default function Home() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [surveyAnswers, setSurveyAnswers] = useState([]);
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
 
 
   const handleAnswerSelect = (answer) => {
@@ -70,7 +68,6 @@ export default function Home() {
       
       if (currentQuestion === questions.length - 1) {
         const response = await sendSurvey(credential, [...surveyAnswers, answer]);
-        setSurveyCompleted(true);
         router.push('/upload');
       } else {
         // Go to the next question
@@ -84,12 +81,8 @@ export default function Home() {
     setCurrentQuestion(0);
   };
 
-  if (surveyCompleted) {
-    return null; // Return null to prevent rendering the survey
-  }
 
   return (
-    <SurveyContext.Provider value={handleStartSurveyClick}>
       <>
         <Head>
          <title>Can I Play It?</title>
@@ -145,6 +138,5 @@ export default function Home() {
         </div>
         </main>
       </>
-    </SurveyContext.Provider>
   );
 }

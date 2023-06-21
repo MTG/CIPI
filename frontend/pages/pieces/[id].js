@@ -40,8 +40,6 @@ export const GraphExplorer = ({ pieces }) => {
         </div>
 }
 
-
-
 export default function PiecePage ({}){
     const router = useRouter();
     const { id } = router.query;
@@ -71,18 +69,21 @@ export default function PiecePage ({}){
         window.location.href = piece.url; 
     };
     const handleLike = async() => {
-        setLiked(!liked);
-        setDisliked(false);
-        setShowCommentBox(false);
-        setComment('');
-        const feedbackData = {
-            musicsheetid: id,
-            liked: !liked ? 1 : 0,
-            disliked: 0,
-            comment: ''
-        };
-        console.log(feedbackData)
-        const response = await sendFeedbackData(credential, feedbackData);
+            setLiked(!liked);
+            setDisliked(false);
+            setShowCommentBox(false);
+            setComment('');
+            const feedbackData = {
+                musicsheetid: id,
+                liked: !liked ? 1 : 0,
+                disliked: 0,
+                comment: ''
+            };
+
+        if (credential){
+            const response = await sendFeedbackData(credential, feedbackData);
+        }
+        
     };
     const handleDislike = async() => {
         setDisliked(!disliked);
@@ -97,8 +98,9 @@ export default function PiecePage ({}){
             disliked: !disliked ? 1 : 0,
             comment: ''
         };
-    
-        const response = await sendFeedbackData(credential, feedbackData);
+        if (credential){
+            const response = await sendFeedbackData(credential, feedbackData);
+        }
     };
     const handleCommentChange = (e) => {
         setComment(e.target.value);
@@ -111,8 +113,10 @@ export default function PiecePage ({}){
             disliked: 0,
             comment: comment
         };
-    
-        const response = await sendFeedbackData(credential, feedbackData);
+        
+        if (credential){
+            const response = await sendFeedbackData(credential, feedbackData);
+        }
     
         // Clear comment field
         setComment('');

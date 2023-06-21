@@ -20,3 +20,14 @@ def insert_user_data(user_data, user_mail):
             answers[3],  # difficulty_piece3
           ))
         
+def has_user_data(user_mail):
+
+    with database() as cursor:
+        cursor.execute('''
+        SELECT * FROM _user WHERE mail = %s
+        ''', (
+            user_mail,  # mail
+          ))
+        rows = cursor.fetchall()
+        return len(rows) != 0
+        
