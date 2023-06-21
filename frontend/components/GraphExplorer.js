@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Zoom } from '@visx/zoom';
 import { localPoint } from '@visx/event';
 import { RectClipPath } from '@visx/clip-path';
@@ -14,9 +14,50 @@ const initialTransform = (width, height, initZoom) => ({
     skewY: 0,
 });
 
+const getBoundaries = (pieces) => {
+    let minX1 = null;
+    let minX2 = null;
+    let maxX1 = null;
+    let maxX2 = null;
+    pieces.forEach(piece => {
+        const { x1, x2 } = piece.difficulty;
+        if (minX1 === null || minX1 > x1){
+            minX1 = x1;
+        }
+        if (minX2 === null || minX2 > x2){
+            minX2 = x2;
+        }
+        if (maxX1 === null || maxX1 < x1){
+            maxX1 = x1;
+        }
+        if (maxX2 === null || maxX2 < x2){
+            maxX2 = x2;
+        }
+    });
+    return { minX1, minX2, maxX1, maxX2 }
+}
+
+const getCoordinates = (difficulty, boundaries) => {
+    const { x1, x2 } = difficulty
+    const { minX1, minX2, maxX1, maxX2 } = boundaries
+    const x = mapRange(x1, minX1, maxX1, -1, 1) 
+    const y = mapRange(x2, minX2, maxX2, -1, 1) * -1 
+    return { x, y }
+}
+
 const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, isPieceSelectable, bg = '#ffffff' , radius, initZoom}) => {
     const [hoveringPiece, setHoveringPiece] = useState(null)
     const [selectedPiece, setSelectedPiece] = useState(null)
+
+    const [boundaries, setBoundaries] = useState({
+        minX1: 1,
+        maxX1: 9,
+        minX2: 1,
+        maxX2: 9
+    });
+    useEffect(() => {
+        setBoundaries(getBoundaries(pieces))
+    }, [pieces])
 
     const {
         tooltipData,
@@ -36,17 +77,16 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
         });
     };
 
-    console.log(initZoom)
     if (!width && !height) return <></>
     return (
         <>
             <Zoom
                 width={width}
                 height={height}
-                scaleXMin={110}
-                scaleXMax={5000}
-                scaleYMin={110}
-                scaleYMax={5000}
+                scaleXMin={50}
+                scaleXMax={8500}
+                scaleYMin={50}
+                scaleYMax={8500}
                 initialTransformMatrix={initialTransform(width, height, initZoom)}
             >
                 {(zoom) => {
@@ -82,9 +122,7 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
                             />
                             <g transform={zoom.toString()}>
                                 {pieces.map((piece, i) => {
-                                    const { difficulty, bg } = piece;
-                                    const x = difficulty.x1/9 - 0.5;
-                                    const y = 1 - difficulty.x2/9 - 0.5;
+                                    const { x, y } = getCoordinates(piece.difficulty, boundaries)
                                     return <React.Fragment key={`dot-${i}`}>
                                         <circle
                                             className={isPieceSelectable(piece) && "cursor-pointer"}
