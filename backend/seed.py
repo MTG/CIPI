@@ -3,6 +3,9 @@ import sys
 from dotenv import load_dotenv, find_dotenv
 import psycopg2
 
+import numpy as np
+
+
 load_dotenv(find_dotenv())
 
 conn = psycopg2.connect(database=os.getenv("DATABASE_NAME"),
@@ -60,28 +63,26 @@ latent_map_x2 VARCHAR(8000)
 #user
 cursor.execute('''CREATE TABLE _user (
 mail VARCHAR(8000) PRIMARY KEY,
+name VARCHAR(8000) NOT NULL,
+surname VARCHAR(8000) NOT NULL,
 study_years VARCHAR(8000),
-piece1_id VARCHAR(8000) ,
-difficulty_piece1 VARCHAR(8000) NOT NULL,
-piece2_id VARCHAR(8000),
-difficulty_piece2 VARCHAR(8000) NOT NULL,
-piece3_id VARCHAR(8000),
-difficulty_piece3 VARCHAR(8000) NOT NULL
+assigned_level INT NOT NULL
 )''')
 
 #feedback
-cursor.execute('''CREATE TABLE feedback(
-feedback_id SERIAL PRIMARY KEY,
-user_mail VARCHAR(8000) NOT NULL,
+cursor.execute('''CREATE TABLE feedback (
+feedback_id INT PRIMARY KEY,
 musicsheetid INT NOT NULL,
-liked INT,
-disliked INT,
-comment VARCHAR(8000),
+mail VARCHAR(8000) NOT NULL,
+rating INT NOT NULL,
+expressiveness INT NOT NULL,
+technical INT NOT NULL,
+reasoning VARCHAR(8000),
 FOREIGN KEY (musicsheetid) REFERENCES musicsheet (musicsheetid),
-FOREIGN KEY (user_mail) REFERENCES _user (mail)
+FOREIGN KEY (mail) REFERENCES _user (mail)
 )''')
 
-#insert data
+
 
 with open("only_one_piece.csv", 'rb') as f:
     next(f) 
@@ -113,3 +114,10 @@ cursor.execute('''
 conn.commit()
 cursor.close()
 conn.close()
+
+
+
+
+
+
+
