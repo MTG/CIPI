@@ -66,9 +66,12 @@ const SearchFilter = ({ onFilterChange }) => {
         onChange={handlePeriodChange}
         className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
         <option value="">Select Period</option>
+        <option value="Early Romantic">Early Romantic</option>
         <option value="Romantic">Romantic</option>
+        <option value="Late Romantic">Late Romantic</option>
         <option value="Classical">Classical</option>
-        <option value="Early-20th">Early-20th</option>
+        <option value="Baroque">Baroque</option>
+        <option value="Early 20th century">Early 20th century</option>
         <option value="Modern">Modern</option>
         </select>
       <div className="flex flex-col mr-2 mb-2 sm:mb-0">
@@ -109,6 +112,37 @@ const SearchFilter = ({ onFilterChange }) => {
   );
 };
 
+//<select
+//   value={period}
+//   onChange={handleMinDifficultyChange}
+//   className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
+//   <option value="">Select minimum difficulty</option>
+//   <option value="1">1</option>
+//   <option value="2">2</option>
+//   <option value="3">3</option>
+//   <option value="4">4</option>
+//   <option value="5">5</option>
+//   <option value="6">6</option>
+//   <option value="7">7</option>
+//   <option value="8">8</option>
+//   <option value="9">9</option>
+//</select>
+//<select
+//   value={period}
+//   onChange={handleMaxDifficultyChange}
+//   className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
+//   <option value="">Select maximum difficulty</option>
+//   <option value="1">1</option>
+//   <option value="2">2</option>
+//   <option value="3">3</option>
+//   <option value="4">4</option>
+//   <option value="5">5</option>
+//   <option value="6">6</option>
+//   <option value="7">7</option>
+//   <option value="8">8</option>
+//   <option value="9">9</option>
+//</select>
+//
 
 const ListExplorer = ({ pieces, filter }) => {
   const router = useRouter();
@@ -295,7 +329,7 @@ export default function Home() {
     const minDifficultyValue = min_difficulty || 1;
     const maxDifficultyValue = max_difficulty || 9;
 
-    if (period == 'Romantic' || period == 'Classical' || period == 'Early-20th' || period == 'Modern')
+    if (period == 'Romantic' || period == 'Classical' || period == 'Baroque' || period == 'Early-20th' || period == 'Modern')
     {
      getPieces(1000, 1, period, minDifficultyValue, maxDifficultyValue, '')
       .then((r) => {
@@ -313,6 +347,16 @@ export default function Home() {
     }
   };
 
+  const applyInitialFilter = () => {
+    const filter = {
+      period: '', // Set your desired initial period filter value
+      min_difficulty: 1,
+      max_difficulty: 9
+    };
+
+    handleFilterChange(filter);
+  };
+  
     const handleFileUpload = (event) => {
     const file = event.target.files[0];
     //Store PDF in folder to be read with OMR
@@ -324,7 +368,7 @@ export default function Home() {
     let timer = window.setTimeout(() => {
       if (mapMode === true) requireLogin({ allowSkip: true, skipTimeoutSeconds: 60 })
     }, 1000);
-  
+    applyInitialFilter();
     return () => window.clearTimeout(timer);
   }, [mapMode])
 
