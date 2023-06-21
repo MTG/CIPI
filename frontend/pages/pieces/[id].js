@@ -43,6 +43,7 @@ export const GraphExplorer = ({ pieces }) => {
 export default function PiecePage ({}){
     const router = useRouter();
     const { id } = router.query;
+    if( id== undefined) return <></>
 
     const [piece, setPiece] = useState([]);
     const [pieces, setPieces] = useState([]);
@@ -59,7 +60,7 @@ export default function PiecePage ({}){
 
     useEffect(() => {
         getPieces(id).then(r => setPieces(r['array']))
-      }, []); 
+      }, [id]); 
 
     useEffect(() => {
         getPiece(id).then((r) => setPiece(r));
@@ -149,17 +150,15 @@ export default function PiecePage ({}){
 
         <div className={'ml-2 font-bold text-gray-600 text-center'} > CIPI </div>
         
-        <div className={'my-10 items-center px-60'}>
+        <div className={'my-10 px-10 flex flex-1 flex-col'}>
             <div className={'ml-2 text-sm font-medium text-gray-600'}> {piece.author} </div>
             <div className={'ml-2 text-2xl font-bold'}>{piece.title}</div>
 
             <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty</div>
-            <div className="ml-2 h-5 w-full bg-neutral-200 dark:bg-neutral-600">
-
-            <DifficultyBar filled={piece.normalized_difficulty/10} />
-                
+            <div className="ml-2 h-0 w-full bg-neutral-200 dark:bg-neutral-600">
+                <DifficultyBar filled={piece.normalized_difficulty/10} />
             </div>
-            <div className="flex justify-center mt-2">
+            <div className="pt-7 flex justify-center mt-2">
                 <button
                     className={`mr-2 ${
                     liked ? 'text-green-500' : 'text-gray-500'
@@ -205,7 +204,7 @@ export default function PiecePage ({}){
                 <p className={'pt-5 ml-2 text-sm font-medioum text-gray-500 hover:underline'}>{piece.title} </p>
              </div>
 
-             <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
+             <div className="flex flex-1 justify-center content-center bg-white overflow-hidden">
                 <GraphExplorer pieces={pieces} />
              </div>
 
