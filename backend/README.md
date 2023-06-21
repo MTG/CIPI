@@ -23,6 +23,17 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+5. Create a `.env` file with the required environment variables (replace `...` by the needed secrets)
+```
+DATABASE_NAME='...'
+DATABASE_HOST='...'
+DATABASE_USER='...'
+DATABASE_PASSWORD='...'
+DATABASE_PORT='...'
+DATABASE_SSLMODE='...'
+REPLICATE_API_TOKEN='...'
+``` 
+
 # Run (development)
 
 ```bash

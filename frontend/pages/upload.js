@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react'
-import {useDropzone} from 'react-dropzone'
 import Head from 'next/head'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { API_HOST } from '@/config'
@@ -7,6 +6,7 @@ import { AuthContext } from '@/contexts/AuthContext'
 import { DifficultyBar } from '@/components/DifficultyBar'
 import { PieceGraph, grayscaleHex, mapRange } from '@/components/GraphExplorer'
 import { PieceCard } from '@/components/PieceCard'
+import {useDropzone} from 'react-dropzone'
 
 function Dropzone({ file, setFile, requireLogin }) {
     const noFileText = "Upload a PDF score";
@@ -123,6 +123,16 @@ const LoadingStep = ({ loadingStartTime }) => {
     </>
 }
 
+const ErrorStep = ({  }) => {
+    return <>
+        <div className="flex w-full flex-col items-center justify-center">
+            <div className="mt-4 text-sm text-gray-600">
+                Something failed. Try again later...
+            </div>
+        </div>
+    </>
+}
+
 const ExploreStep = ({ file, difficulty, similarScores }) => {
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
@@ -156,6 +166,7 @@ const ExploreStep = ({ file, difficulty, similarScores }) => {
 const STEP_SELECT = 'select';
 const STEP_LOAD = 'load';
 const STEP_EXPLORE = 'explore';
+const STEP_ERROR = 'error';
 
 const uploadPdf = async (credential, file) => {
     const formData = new FormData();
@@ -191,7 +202,7 @@ export default function Upload() {
 
         uploadPdf(credential, file).then(r => {
             setDifficulty(r.data.difficulty)
-            setSimilarScores([{
+            const selfPiece = {
                 "url": null,
                 "title": file?.name,
                 "period": null,
@@ -203,9 +214,10 @@ export default function Upload() {
                 },
                 "id": null,
                 "key": null
-            }, ...r.data.pieces])
+            };
+            setSimilarScores([selfPiece, ...r.data.pieces])
             setStep(STEP_EXPLORE)
-        })
+        }).catch(() => setStep(STEP_ERROR))
     }
 
     return <>
@@ -219,6 +231,7 @@ export default function Upload() {
             { step === STEP_SELECT && <UploadStep file={file} setFile={setFile} nextStep={startUpload} requireLogin={requireLogin}/> }
             { step === STEP_LOAD && <LoadingStep loadingStartTime={loadingStartTime} /> }
             { step === STEP_EXPLORE && <ExploreStep difficulty={difficulty} similarScores={similarScores} file={file} /> }
+            { step === STEP_ERROR && <ErrorStep /> }
         </main>
     </>
 }
