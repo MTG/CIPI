@@ -5,16 +5,16 @@ import { RectClipPath } from '@visx/clip-path';
 import { useTooltip, TooltipWithBounds } from '@visx/tooltip';
 import ParentSize from '@visx/responsive/lib/components/ParentSize';
 
-const initialTransform = (width, height) => ({
-    scaleX: 110,
-    scaleY: 110,
+const initialTransform = (width, height, initZoom) => ({
+    scaleX: initZoom,
+    scaleY: initZoom,
     translateX: width / 2,
     translateY: height / 2,
     skewX: 0,
     skewY: 0,
 });
 
-const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, isPieceSelectable, bg = '#ffffff' }) => {
+const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, isPieceSelectable, bg = '#ffffff' , radius, initZoom}) => {
     const [hoveringPiece, setHoveringPiece] = useState(null)
     const [selectedPiece, setSelectedPiece] = useState(null)
 
@@ -36,6 +36,7 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
         });
     };
 
+    console.log(initZoom)
     if (!width && !height) return <></>
     return (
         <>
@@ -43,10 +44,10 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
                 width={width}
                 height={height}
                 scaleXMin={110}
-                scaleXMax={1000}
+                scaleXMax={5000}
                 scaleYMin={110}
-                scaleYMax={1000}
-                initialTransformMatrix={initialTransform(width, height)}
+                scaleYMax={5000}
+                initialTransformMatrix={initialTransform(width, height, initZoom)}
             >
                 {(zoom) => {
                     const onDragStart = (e) => {
@@ -82,14 +83,15 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
                             <g transform={zoom.toString()}>
                                 {pieces.map((piece, i) => {
                                     const { difficulty, bg } = piece;
-                                    const x = difficulty.x1 - 0.5;
-                                    const y = 1 - difficulty.x2 - 0.5;
+                                    const x = difficulty.x1/9 - 0.5;
+                                    const y = 1 - difficulty.x2/9 - 0.5;
                                     return <React.Fragment key={`dot-${i}`}>
                                         <circle
                                             className={isPieceSelectable(piece) && "cursor-pointer"}
                                             cx={x}
                                             cy={y}
-                                            r={0.025}
+                                
+                                            r={radius}
                                             fill={getPieceColor({piece, isHovered: hoveringPiece === piece, isSelected: selectedPiece === piece })}
                                             onClick={(e) => {
                                                 if (!isPieceSelectable(piece)) return
@@ -133,7 +135,7 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
     );
 }
 
-export const PieceGraph = ({ pieces, onSelectPiece, getPieceColor, isPieceSelectable }) => {
+export const PieceGraph = ({ pieces, onSelectPiece, getPieceColor, isPieceSelectable, radius, initZoom}) => {
     
     return  <div className="relative flex flex-1 max-w-full overflow-hidden my-2">
                 <ParentSize debounceTime={10}>
@@ -145,6 +147,8 @@ export const PieceGraph = ({ pieces, onSelectPiece, getPieceColor, isPieceSelect
                             onSelectPiece={onSelectPiece} 
                             getPieceColor={getPieceColor}
                             isPieceSelectable={isPieceSelectable}
+                            radius = {radius}
+                            initZoom = {initZoom}
                         />
                     )}
                 </ParentSize>
