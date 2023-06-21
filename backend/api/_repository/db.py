@@ -25,5 +25,6 @@ def database():
     except:
         raise
     finally:
+        conn.commit()
         cursor.close()
         conn.close()

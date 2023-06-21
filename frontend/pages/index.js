@@ -6,6 +6,7 @@ import { PieceGraph, grayscaleHex, mapRange } from '../components/GraphExplorer'
 import { useRouter } from 'next/router'
 import { AuthContext } from '@/contexts/AuthContext'
 import { PieceCard } from '@/components/PieceCard'
+import { useHasUserData } from '@/hooks/useHasUserData'
 
 const MapModeToggle = ({ mapMode, setMapMode }) => {
   return <div><label className="relative inline-flex items-center mr-5 cursor-pointer">
@@ -229,6 +230,8 @@ export const GraphExplorer = ({ pieces }) => {
       selectedPiece={selectedPiece}
       getPieceColor={getPieceColor}
       isPieceSelectable={() => true}
+      radius = {0.00125*2}
+      initZoom = {300}
     />
   </div>
 }
@@ -264,13 +267,21 @@ export default function Home() {
   const [pieces, setPieces] = useState([]);
   const [mapMode, setMapMode] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
+  const router = useRouter();
+  const hasData = useHasUserData();
+
   const [searchFilter, setSearchFilter] = useState({
     period: '',
     min_difficulty: 1,
     max_difficulty: 9});
 
+  const {requireLogin, credential } = useContext(AuthContext);
 
-  const { requireLogin, credential } = useContext(AuthContext);
+  useEffect(() => {
+    getPieces(credential).then(r => setPieces(r['array']))
+  }, []);  
+
+  
 
   const handleSearch = (searchTerm) => {
     const filteredPieces = pieces.filter((piece) => {
@@ -328,6 +339,19 @@ export default function Home() {
     return () => window.clearTimeout(timer);
   }, [mapMode])
 
+  const handleSurveyUploadPDF = () => {
+    if (credential && !hasData) {
+      console.log(hasData)
+      router.push('/survey');
+    } else {
+      console.log("else")
+      console.log(hasData)
+      router.push('/upload');
+    }
+  };
+
+  
+
   return (
     <>
       <Head>
@@ -339,12 +363,8 @@ export default function Home() {
       <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
         <div className="flex pb-4">
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
-          <div className="flex-1" />
-          <Link href="upload">
-            <button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm">
-              Upload PDF
-            </button>
-          </Link>
+          <div className="font-bold text-gray-600 flex-1 text-center">CIPI</div>
+         <button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleSurveyUploadPDF}>Upload PDF</button>
         </div>
         <div className="flex justify-center ">
           <SearchBar onSearch={handleSearch} />
