@@ -1,8 +1,8 @@
-from .api._repository.feedback import insert_feedback_data
+from ._repository.feedback import insert_feedback_data
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from .api._repository.user import has_user_data, insert_user_data
+from ._repository.user import has_user_data, insert_user_data
 from ._auth.login import with_login
 import os
 from dotenv import load_dotenv
