@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 
-from backend.api.diff_model.get_latent_space import get_backbone
-from backend.api.diff_model.model import gpt2_classiffier_2_multi, prediction2label
+from .api.diff_model.get_latent_space import get_backbone
+from .api.diff_model.model import gpt2_classiffier_2_multi, prediction2label
 
 import sys
 import os
