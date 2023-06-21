@@ -3,7 +3,7 @@ def ret_query_filters(period, min_difficulty, max_difficulty):
     query=""
     filtered_values={}
 
-    if period is not None:
+    if period is not None and period != "":
         query= query + " composer_period= %(period)s AND"
         filtered_values["period"] = period
     if min_difficulty is not None and max_difficulty is not None:

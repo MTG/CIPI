@@ -40,32 +40,26 @@ const SearchBar = ({ onSearch }) => {
   );
 };
 
-const SearchFilter = ({ onFilterChange }) => {
+const SearchFilter = ({ setFilter }) => {
   const [period, setPeriod] = useState("");
-  const [min_difficulty, setMinDifficulty] = useState("");
-  const [max_difficulty, setMaxDifficulty] = useState("");
+  const [minDifficulty, setMinDifficulty] = useState(1);
+  const [maxDifficulty, setMaxDifficulty] = useState(9);
 
-  const handlePeriodChange = (event) => {
-    setPeriod(event.target.value);
-  };
-  const handleMinDifficultyChange = (event) => {
-    setMinDifficulty(event.target.value);
-  };
-  const handleMaxDifficultyChange = (event) => {
-    setMaxDifficulty(event.target.value);
-  };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    onFilterChange({ period, min_difficulty, max_difficulty });
-  };
+  const handlePeriodChange = (event) => setPeriod(event.target.value);
+  const handleMinDifficultyChange = (event) => setMinDifficulty(event.target.value);
+  const handleMaxDifficultyChange = (event) => setMaxDifficulty(event.target.value);
+
+  useEffect(() => {
+    setFilter({ period, minDifficulty, maxDifficulty });
+  }, [period, minDifficulty, maxDifficulty])
 
   return (
-    <form className="flex flex-wrap items-center justify-center my-4" onSubmit={handleSubmit}>
+    <div className="flex flex-wrap items-center justify-center my-4">
       <select
         value={period}
         onChange={handlePeriodChange}
         className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
-        <option value="">Select Period</option>
+        <option value="">All periods</option>
         <option value="Early Romantic">Early Romantic</option>
         <option value="Romantic">Romantic</option>
         <option value="Late Romantic">Late Romantic</option>
@@ -74,75 +68,38 @@ const SearchFilter = ({ onFilterChange }) => {
         <option value="Early 20th century">Early 20th century</option>
         <option value="Modern">Modern</option>
         </select>
-      <div className="flex flex-col mr-2 mb-2 sm:mb-0">
-        <label htmlFor="minDifficulty" className="text-gray-900">
-          Minimum Difficulty: {min_difficulty}
-        </label>
-        <input
-          type="range"
-          id="minDifficulty"
-          min="1"
-          max="9"
-          value={min_difficulty}
-          onChange={handleMinDifficultyChange}
-          className="cursor-pointer bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-        />
-      </div>
-      <div className="flex flex-col mr-2 mb-2 sm:mb-0">
-        <label htmlFor="maxDifficulty" className="text-gray-900">
-          Maximum Difficulty: {max_difficulty}
-        </label>
-        <input
-          type="range"
-          id="maxDifficulty"
-          min="1"
-          max="9"
-          value={max_difficulty}
-          onChange={handleMaxDifficultyChange}
-          className="cursor-pointer bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-        />
-      </div>
-      <button
-        type="submit"
-        className="bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
-      >
-        Filter
-      </button>
-    </form>
+        <select
+            value={minDifficulty}
+            onChange={handleMinDifficultyChange}
+            className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
+            <option value={1}>Difficulty &gt; 1</option>
+            <option value={2}>Difficulty &gt; 2</option>
+            <option value={3}>Difficulty &gt; 3</option>
+            <option value={4}>Difficulty &gt; 4</option>
+            <option value={5}>Difficulty &gt; 5</option>
+            <option value={6}>Difficulty &gt; 6</option>
+            <option value={7}>Difficulty &gt; 7</option>
+            <option value={8}>Difficulty &gt; 8</option>
+            <option value={9}>Difficulty &gt; 9</option>
+          </select>
+          <select
+            value={maxDifficulty}
+            onChange={handleMaxDifficultyChange}
+            className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
+            <option value={1}>Difficulty &lt; 1</option>
+            <option value={2}>Difficulty &lt; 2</option>
+            <option value={3}>Difficulty &lt; 3</option>
+            <option value={4}>Difficulty &lt; 4</option>
+            <option value={5}>Difficulty &lt; 5</option>
+            <option value={6}>Difficulty &lt; 6</option>
+            <option value={7}>Difficulty &lt; 7</option>
+            <option value={8}>Difficulty &lt; 8</option>
+            <option value={9}>Difficulty &lt; 9</option>
+          </select>
+    </div>
   );
 };
 
-//<select
-//   value={period}
-//   onChange={handleMinDifficultyChange}
-//   className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
-//   <option value="">Select minimum difficulty</option>
-//   <option value="1">1</option>
-//   <option value="2">2</option>
-//   <option value="3">3</option>
-//   <option value="4">4</option>
-//   <option value="5">5</option>
-//   <option value="6">6</option>
-//   <option value="7">7</option>
-//   <option value="8">8</option>
-//   <option value="9">9</option>
-//</select>
-//<select
-//   value={period}
-//   onChange={handleMaxDifficultyChange}
-//   className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
-//   <option value="">Select maximum difficulty</option>
-//   <option value="1">1</option>
-//   <option value="2">2</option>
-//   <option value="3">3</option>
-//   <option value="4">4</option>
-//   <option value="5">5</option>
-//   <option value="6">6</option>
-//   <option value="7">7</option>
-//   <option value="8">8</option>
-//   <option value="9">9</option>
-//</select>
-//
 
 const ListExplorer = ({ pieces, filter }) => {
   const router = useRouter();
@@ -304,7 +261,7 @@ export default function Home() {
     max_difficulty: 9});
 
 
-  const { requireLogin, credential } = useContext(AuthContext);
+  const { requireLogin } = useContext(AuthContext);
 
   const handleSearch = (searchTerm) => {
     const filteredPieces = pieces.filter((piece) => {
@@ -321,54 +278,21 @@ export default function Home() {
     setSearchResult(filteredPieces);
   };
 
-  const handleFilterChange = (filter) => {
-    setSearchFilter(filter);
-  
-    const { period, min_difficulty, max_difficulty } = filter;
-    
-    const minDifficultyValue = min_difficulty || 1;
-    const maxDifficultyValue = max_difficulty || 9;
-
-    if (period == 'Romantic' || period == 'Classical' || period == 'Baroque' || period == 'Early-20th' || period == 'Modern')
-    {
-     getPieces(1000, 1, period, minDifficultyValue, maxDifficultyValue, '')
+  useEffect(() => {
+    const { period, minDifficulty, maxDifficulty } = searchFilter;
+    console.log(period)
+    getPieces(1000, 1, period, minDifficulty, maxDifficulty, '')
       .then((r) => {
         setPieces(r['array']);
         setSearchResult(null); // Reset search results when filters change
       });
-    }
-    else
-    {
-     getPiecesDefault(1000, 1, minDifficultyValue, maxDifficultyValue, '')
-      .then((r) => {
-        setPieces(r['array']);
-        setSearchResult(null); // Reset search results when filters change
-      });
-    }
-  };
-
-  const applyInitialFilter = () => {
-    const filter = {
-      period: '', // Set your desired initial period filter value
-      min_difficulty: 1,
-      max_difficulty: 9
-    };
-
-    handleFilterChange(filter);
-  };
+  }, [searchFilter])
   
-    const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    //Store PDF in folder to be read with OMR
-    console.log("Uploaded file:", file);
-  };
-
   // example of how to use the login
   useEffect(() => {
     let timer = window.setTimeout(() => {
       if (mapMode === true) requireLogin({ allowSkip: true, skipTimeoutSeconds: 60 })
     }, 1000);
-    applyInitialFilter();
     return () => window.clearTimeout(timer);
   }, [mapMode])
 
@@ -394,7 +318,7 @@ export default function Home() {
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          <SearchFilter onFilterChange={handleFilterChange} />
+          <SearchFilter setFilter={setSearchFilter} />
         </div>
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
