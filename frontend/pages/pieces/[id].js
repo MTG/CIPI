@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import Head from 'next/head';
-import { PieceGraph } from '../../components/GraphExplorer';
+import { PieceGraph, grayscaleHex, mapRange } from '../../components/GraphExplorer'
 import { PieceCard } from '@/components/PieceCard'
 import React from 'react';
 import { DifficultyBar } from '@/components/DifficultyBar';
@@ -11,7 +11,6 @@ import { API_HOST } from '@/config'
 const getPiece = async (id) => {
     const response = await fetch(`${API_HOST}/api/pieces/${id}`);
     const data = await response.json();
-    console.log(data.data)
     return data.data;
 }
 const getPieces = async (id) => {
@@ -20,15 +19,19 @@ const getPieces = async (id) => {
     return body;
 }
 
+
+
 export const GraphExplorer = ({ pieces }) => {
+    console.log(pieces)
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
-    const mappedDifficulty = 1 - mapRange((piece.normalized_difficulty) / 2, -5, 5, 0.2, 0.7);
+    const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
     if (isSelected) return router.push(`/pieces/${piece.id}`);
     if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
     return grayscaleHex(mappedDifficulty);
     };
     return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
+        <PieceCard selectedPiece={selectedPiece} />
         <PieceGraph
             pieces={pieces}
             onSelectPiece={setSelectedPiece}
@@ -40,9 +43,12 @@ export const GraphExplorer = ({ pieces }) => {
 }
 
 
+
 export default function PiecePage ({}){
     const router = useRouter();
     const { id } = router.query;
+
+    const [piece, setPiece] = useState([]);
     const [pieces, setPieces] = useState([]);
 
     const [liked, setLiked] = useState(false);
@@ -51,7 +57,7 @@ export default function PiecePage ({}){
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [comment, setComment] = useState('');
     
-    const [piece, setPiece] = useState([]);
+
 
     useEffect(() => {
         getPieces(id).then(r => setPieces(r['array']))
