@@ -1,6 +1,6 @@
 from .db import database
 
-def insert_feedback(user, piece, liked, disliked, comment):
+def insert_feedback_data(user, piece, liked, disliked, comment):
     with database() as cursor:
         cursor.execute('''
         INSERT INTO feedback (user, piece, liked, disliked, comment)

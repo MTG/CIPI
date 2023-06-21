@@ -5,8 +5,9 @@ import { PieceCard } from '@/components/PieceCard'
 import React from 'react';
 import { DifficultyBar } from '@/components/DifficultyBar';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
-import { useState, useEffect } from 'react';
-import { API_HOST } from '@/config'
+import { useState, useEffect, useContext } from 'react';
+import { API_HOST } from '@/config';
+import { AuthContext } from '@/contexts/AuthContext';
 
 const getPiece = async (id) => {
     const response = await fetch(`${API_HOST}/api/pieces/${id}`);
@@ -19,8 +20,6 @@ const getPieces = async (id) => {
     return body;
 }
 
-
-
 export const GraphExplorer = ({ pieces }) => {
     console.log(pieces)
     const [selectedPiece, setSelectedPiece] = useState(null)
@@ -31,7 +30,6 @@ export const GraphExplorer = ({ pieces }) => {
     return grayscaleHex(mappedDifficulty);
     };
     return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
-        <PieceCard selectedPiece={selectedPiece} />
         <PieceGraph
             pieces={pieces}
             onSelectPiece={setSelectedPiece}
@@ -56,6 +54,8 @@ export default function PiecePage ({}){
     
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [comment, setComment] = useState('');
+
+    const {credential} = useContext(AuthContext);
     
 
 
@@ -70,29 +70,67 @@ export default function PiecePage ({}){
     const handleUrl = () => {
         window.location.href = piece.url; 
     };
-
-    const handleLike = () => {
+    const handleLike = async() => {
         setLiked(!liked);
         setDisliked(false);
         setShowCommentBox(false);
         setComment('');
+        const feedbackData = {
+            musicsheetid: id,
+            liked: !liked ? 1 : 0,
+            disliked: 0,
+            comment: ''
+        };
+        console.log(feedbackData)
+        const response = await sendFeedbackData(credential, feedbackData);
     };
-    const handleDislike = () => {
+    const handleDislike = async() => {
         setDisliked(!disliked);
         setLiked(false);
         if (disliked) {
             setShowCommentBox(false);
             setComment('');
           }
+          const feedbackData = {
+            musicsheetid: id,
+            liked: 0,
+            disliked: !disliked ? 1 : 0,
+            comment: ''
+        };
+    
+        const response = await sendFeedbackData(credential, feedbackData);
     };
     const handleCommentChange = (e) => {
         setComment(e.target.value);
     };
-    const handleCommentSubmit = (e) => {
+    const handleCommentSubmit = async(e) => {
         e.preventDefault();
-        // Process the comment here
-        console.log('Submitted comment:', comment);
+        const feedbackData = {
+            musicsheetid: id,
+            liked: 0,
+            disliked: 0,
+            comment: comment
+        };
+    
+        const response = await sendFeedbackData(credential, feedbackData);
+    
+        // Clear comment field
+        setComment('');
     };
+
+    const sendFeedbackData = async (credential, data) => {
+        const response = await fetch(`${API_HOST}/api/feedback`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authentication': `Bearer ${credential}`
+          },
+          body: JSON.stringify(data),
+        });
+        
+        const result = await response.json();
+        return result;
+      };
 
     return (
         <>

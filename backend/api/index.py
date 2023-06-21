@@ -1,3 +1,4 @@
+from backend.api._repository.feedback import insert_feedback_data
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -56,7 +57,6 @@ def auth(user):
 def insert_user(user):
     print(f"{user.email} ")
     user_data = request.get_json()
-    print(f"{user_data} ")
     user_email=user.email
     insert_user_data(user_data, user_email)
     return jsonify({})
@@ -65,15 +65,16 @@ def insert_user(user):
 @app.post('/api/feedback')
 @with_login
 def insert_feedback(user):
-    print(f"{user.email} uploaded a file")
+    print(f"{user.email}")
     data = request.get_json()
     user = user.email
+    print(f"{user}")
     piece = data.get('musicsheetid')
     liked = data.get('liked', 0) #default values 
     disliked = data.get('disliked', 0)
     comment = data.get('comment', '')
-    insert_feedback(user, piece, liked, disliked, comment)
-    return 'Data inserted successfully'
+    insert_feedback_data(user, piece, liked, disliked, comment)
+    return jsonify({})
 
 @app.get('/api/pieces/<id>')
 def pieces_id(id):

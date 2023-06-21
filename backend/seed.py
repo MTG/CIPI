@@ -72,13 +72,13 @@ difficulty_piece3 VARCHAR(8000) NOT NULL
 #feedback
 cursor.execute('''CREATE TABLE feedback(
 feedback_id SERIAL PRIMARY KEY,
-user_mail VARCHAR(8000) NOT NULL,
+user VARCHAR(8000) NOT NULL,
 musicsheetid INT NOT NULL,
 liked INT,
 disliked INT,
 comment VARCHAR(8000),
 FOREIGN KEY (musicsheetid) REFERENCES musicsheet (musicsheetid),
-FOREIGN KEY (user_mail) REFERENCES _user (mail)
+FOREIGN KEY (user) REFERENCES _user (mail)
 )''')
 
 #insert data
