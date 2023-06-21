@@ -20,22 +20,26 @@ const getPieces = async (id) => {
     return body;
 }
 
-export const GraphExplorer = ({ pieces }) => {
+export const GraphExplorer = ({ pieces, id }) => {
     console.log(pieces)
     const [selectedPiece, setSelectedPiece] = useState(null)
     const getPieceColor = ({ piece, isHovered, isSelected }) => {
-    const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
-    if (isSelected) return router.push(`/pieces/${piece.id}`);
-    if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
-    return grayscaleHex(mappedDifficulty);
+        const mappedDifficulty = 1 - mapRange((piece.difficulty.x1 + piece.difficulty.x2) / 2, -5, 5, 0.2, 0.7);
+        if (isSelected) return '#dc2626';
+        if (piece.id === id) return '#ffa19c'
+        if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
+        return grayscaleHex(mappedDifficulty);
     };
     return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
+        <PieceCard selectedPiece={selectedPiece} />
         <PieceGraph
             pieces={pieces}
             onSelectPiece={setSelectedPiece}
             selectedPiece={selectedPiece}
             getPieceColor={getPieceColor}
             isPieceSelectable={() => true}
+            radius = {0.0125/6}
+            initZoom = {1000}
         />
         </div>
 }
@@ -43,9 +47,9 @@ export const GraphExplorer = ({ pieces }) => {
 export default function PiecePage ({}){
     const router = useRouter();
     const { id } = router.query;
-    if( id== undefined) return <></>
+    
 
-    const [piece, setPiece] = useState([]);
+    const [piece, setPiece] = useState(null);
     const [pieces, setPieces] = useState([]);
 
     const [liked, setLiked] = useState(false);
@@ -55,15 +59,20 @@ export default function PiecePage ({}){
     const [comment, setComment] = useState('');
 
     const {credential} = useContext(AuthContext);
-    
 
+    
+    console.log(piece)
 
     useEffect(() => {
-        getPieces(id).then(r => setPieces(r['array']))
+        if( id != undefined){
+            getPieces(id).then(r => setPieces(r['array']))
+        }
       }, [id]); 
 
     useEffect(() => {
-        getPiece(id).then((r) => setPiece(r));
+        if( id != undefined){
+            getPiece(id).then((r) => setPiece(r));
+        }
     }, [id]);
 
     const handleUrl = () => {
@@ -137,6 +146,7 @@ export default function PiecePage ({}){
         return result;
       };
 
+    if( id == undefined || piece === null) return <></>
     return (
         <>
         <Head>
@@ -156,7 +166,7 @@ export default function PiecePage ({}){
 
             <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty</div>
             <div className="ml-2 h-0 w-full bg-neutral-200 dark:bg-neutral-600">
-                <DifficultyBar filled={piece.normalized_difficulty/10} />
+                <DifficultyBar filled={piece.normalized_difficulty/9} />
             </div>
             <div className="pt-7 flex justify-center mt-2">
                 <button
@@ -205,7 +215,7 @@ export default function PiecePage ({}){
              </div>
 
              <div className="flex flex-1 justify-center content-center bg-white overflow-hidden">
-                <GraphExplorer pieces={pieces} />
+                <GraphExplorer pieces={[piece,...pieces]} id = {id} />
              </div>
 
         </div>

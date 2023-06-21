@@ -216,6 +216,8 @@ export const GraphExplorer = ({ pieces }) => {
       selectedPiece={selectedPiece}
       getPieceColor={getPieceColor}
       isPieceSelectable={() => true}
+      radius = {0.00125*2}
+      initZoom = {300}
     />
   </div>
 }
