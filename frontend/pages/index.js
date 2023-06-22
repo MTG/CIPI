@@ -104,7 +104,7 @@ const SearchFilter = ({ setFilter }) => {
 const Skeleton = () => {
   return <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
       <ul className="w-3/4 flex-1 overflow-y-auto animate-pulse">
-      {Array.from({ length: 7 }).map(_ => <div role="status" class="mt-3 flex items-center justify-center h-20 bg-gray-200 rounded-lg animate-pulse">
+      {[...Array(7)].map(key => <div key={key} role="status" class="mt-3 flex items-center justify-center h-20 bg-gray-200 rounded-lg animate-pulse">
           <span class="sr-only">Loading...</span>
       </div>)}
       </ul>
