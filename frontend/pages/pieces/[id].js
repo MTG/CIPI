@@ -117,25 +117,32 @@ export default function PiecePage ({}){
     const handleCommentChange = (e) => {
         setComment(e.target.value);
     };
-    const handleCommentSubmit = async(e) => {
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+          handleCommentSubmit();
+        }
+    };
+
+    const handleCommentSubmit = async() => {
         requireLogin({ allowSkip: false }).then(isLoggedIn => {
             if (!isLoggedIn) return
             if(!hasData) return router.push('/survey')
-        e.preventDefault();
-        const feedbackData = {
-            musicsheetid: id,
-            liked: 0,
-            disliked: 0,
-            comment: comment
-        };
+       
+            const feedbackData = {
+                musicsheetid: id,
+                liked: 0,
+                disliked: 0,
+                comment: comment
+            };
         
-        if (credential){
+        
             const response = sendFeedbackData(credential, feedbackData);
-        }
+        
     
         // Clear comment field
         setComment('');
-    })
+        })
     };
 
 
@@ -191,16 +198,18 @@ export default function PiecePage ({}){
                     <FaThumbsDown size={20} />
                 </button>
                 {disliked && (
-                    <div className="ml-2 border rounded-md p-2">
+                    <div className="ml-2 p-2">
                     <input
                         type="text"
                         value={comment}
                         onChange={handleCommentChange}
+                        onKeyPress={handleKeyPress}
                         placeholder="Add a comment..."
                         disabled={!disliked}
-                        className="border border-gray-300 rounded-md px-2 py-1 mr-1"
+                        className="rounded-md px-2 py-1 mr-1"
+                        style={{ outline: 'none', boxShadow: 'none' }}
+
                     />
-                    <button className="bg-red-700 hover:bg-red-800 text-white rounded-md px-2 py-1" onClick={handleCommentSubmit}>+</button>
                     </div>
                 )}
             </div>
@@ -227,6 +236,22 @@ export default function PiecePage ({}){
 
         </div>
     </div>
+    <footer className="bg-white py-4 flex flex-col items-center text-center">
+        <div className="flex items-center">
+          <img src="/UPFLogo.png" alt="GitHub Logo" className="mr-2 h-14" />
+          <div className="text-gray-600 text-sm">
+            <p className="mb-1">
+              This is an Open Source project performed by a group of students from UPF.
+            </p>
+            <p className="mb-0">
+              All collected data will be used for academic purposes only.
+            </p>
+          </div>
+        </div>
+        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className="pl-40 text-gray-600 text-sm block underline hover:text-blue-500">
+          CIPI GitHub 
+        </a>
+      </footer>
     </>
     );
 }
