@@ -101,33 +101,39 @@ const SearchFilter = ({ setFilter }) => {
   );
 };
 
-
+const Skeleton = () => {
+  return <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
+      <ul className="w-3/4 flex-1 overflow-y-auto animate-pulse">
+      {Array.from({ length: 7 }).map(_ => <div role="status" class="mt-3 flex items-center justify-center h-20 bg-gray-200 rounded-lg animate-pulse">
+          <span class="sr-only">Loading...</span>
+      </div>)}
+      </ul>
+    </div>
+}
 const ListExplorer = ({ pieces, filter }) => {
   const router = useRouter();
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  if (pieces === null) return <Skeleton />
+
   const itemsPerPage = 7;
   const pagesPerSet = 10; // Number of pages per set
-  const totalPages = Math.ceil(pieces.length / itemsPerPage);
+  const totalPages = Math.ceil((pieces?.length ?? 0) / itemsPerPage);
 
   const handlePieceSelection = (piece) => {
     setSelectedPiece(piece);
     router.push(`/pieces/${piece.id}`);
   };
 
-  // Apply the period filter
-  const filteredPieces = filter?.period
-    ? pieces.filter((piece) => piece.period === filter.period)
-    : pieces;
-
   const lastIndex = currentPage * itemsPerPage;
   const firstIndex = lastIndex - itemsPerPage;
-
-  const displayedPieces = filteredPieces.slice(firstIndex, lastIndex);
+  const displayedPieces = pieces.slice(firstIndex, lastIndex);
 
   const goToPage = (page) => {
     setCurrentPage(page);
   };
+
 
   const renderPageButtons = () => {
     const currentPageSet = Math.ceil(currentPage / pagesPerSet);
@@ -241,9 +247,8 @@ const getPieces = async (sz, pg, pr, mind, maxd, query) => {
 }
 
 export default function Home() {
-  const [pieces, setPieces] = useState([]);
+  const [pieces, setPieces] = useState(null);
   const [mapMode, setMapMode] = useState(false);
-  const [searchResult, setSearchResult] = useState(null);
   const router = useRouter();
   const hasData = useHasUserData();
 
@@ -261,10 +266,10 @@ export default function Home() {
 
   useEffect(() => {
     const { period, minDifficulty, maxDifficulty, query } = searchFilter;
+    setPieces(null)
     getPieces(1000, 1, period, minDifficulty, maxDifficulty, query)
       .then((r) => {
         setPieces(r['array']);
-        setSearchResult(null); // Reset search results when filters change
       });
   }, [searchFilter])
   
@@ -313,7 +318,7 @@ export default function Home() {
         )}
         {!mapMode && (
           <div className="flex justify-center flex-1 overflow-hidden">
-            <ListExplorer pieces={searchResult?.length > 0 ? searchResult : pieces} filter={searchFilter} />
+            <ListExplorer pieces={pieces} filter={searchFilter} />
           </div>
         )}
       </main>
