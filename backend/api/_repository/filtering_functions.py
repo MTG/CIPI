@@ -10,6 +10,8 @@ def ret_query_filters(period, min_difficulty, max_difficulty, input_string):
     if min_difficulty is not None and max_difficulty is not None:
         min_difficulty=float(min_difficulty)
         max_difficulty=float(max_difficulty)
+        if min_difficulty== max_difficulty:
+            max_difficulty+=0.99 #find in range that contains that num
         query += " normalized_difficulty BETWEEN %(min_difficulty)s AND %(max_difficulty)s AND"
         filtered_values["min_difficulty"] = min_difficulty
         filtered_values["max_difficulty"] = max_difficulty
