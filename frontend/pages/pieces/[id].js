@@ -178,7 +178,7 @@ export default function PiecePage ({}){
             <div className={'ml-2 text-sm font-medium text-gray-600'}> {piece.author} </div>
             <div className={'ml-2 text-2xl font-bold'}>{piece.title}</div>
 
-            <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty</div>
+            <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty: {piece.normalized_difficulty} </div>
             <div className="ml-2 h-0 w-full bg-neutral-200 dark:bg-neutral-600">
                 <DifficultyBar filled={piece.normalized_difficulty/9} />
             </div>
@@ -237,8 +237,8 @@ export default function PiecePage ({}){
         </div>
     </div>
     <footer className="bg-white py-4 flex flex-col items-center text-center">
-        <div className="flex items-center">
-          <img src="/UPFLogo.png" alt="GitHub Logo" className="mr-2 h-14" />
+        <div className="flex flex-col items-center">
+          <img src="/UPFLogo.png" alt="GitHub Logo" className="h-10 mb-2" />
           <div className="text-gray-600 text-sm">
             <p className="mb-1">
               This is an Open Source project performed by a group of students from UPF.
@@ -248,10 +248,10 @@ export default function PiecePage ({}){
             </p>
           </div>
         </div>
-        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className="pl-40 text-gray-600 text-sm block underline hover:text-blue-500">
-          CIPI GitHub 
-        </a>
-      </footer>
+        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className=" text-gray-600 text-sm block underline hover:text-blue-500">
+          CIPI GitHub
+        </a>    
+      </footer>  
     </>
     );
 }
