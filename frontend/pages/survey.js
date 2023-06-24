@@ -5,6 +5,7 @@ import { useContext, createContext } from 'react';
 import { AuthContext } from '@/contexts/AuthContext';
 import { API_HOST } from '@/config';
 import Link from 'next/link'
+import { Footer } from '../components/Footer';
 
 const questions = [
   {
@@ -137,22 +138,7 @@ export default function Home() {
           </div>
         </div>
         </main>
-        <footer className="bg-white py-4 flex flex-col items-center text-center">
-        <div className="flex flex-col items-center">
-          <img src="/UPFLogo.png" alt="GitHub Logo" className="h-10 mb-2" />
-          <div className="text-gray-600 text-sm">
-            <p className="mb-1">
-              This is an Open Source project performed by a group of students from UPF.
-            </p>
-            <p className="mb-0">
-              All collected data will be used for academic purposes only.
-            </p>
-          </div>
-        </div>
-        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className=" text-gray-600 text-sm block underline hover:text-blue-500">
-          CIPI GitHub
-        </a>    
-      </footer>  
+        <Footer />
       </>
   );
 }

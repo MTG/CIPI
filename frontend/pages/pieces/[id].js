@@ -10,6 +10,7 @@ import { API_HOST } from '@/config';
 import { AuthContext } from '@/contexts/AuthContext';
 import { useHasUserData } from '@/hooks/useHasUserData';
 import Link from 'next/link'
+import { Footer } from '../../components/Footer';
 
 const getPiece = async (id) => {
     const response = await fetch(`${API_HOST}/api/pieces/${id}`);
@@ -95,22 +96,23 @@ export default function PiecePage ({}){
             const response =  sendFeedbackData(credential, feedbackData);
         })
     };
-    const handleDislike = async() => {requireLogin({ allowSkip: false }).then(isLoggedIn => {
-        if (!isLoggedIn) return
-        if(!hasData) return router.push('/survey')
-        setDisliked(!disliked);
-        setLiked(false);
-        if (disliked) {
-            setShowCommentBox(false);
-            setComment('');
-          }
-          const feedbackData = {
-            musicsheetid: id,
-            liked: 0,
-            disliked: !disliked ? 1 : 0,
-            comment: ''
-        };
-        const response = sendFeedbackData(credential, feedbackData);
+    const handleDislike = async() => {
+        requireLogin({ allowSkip: false }).then(isLoggedIn => {
+            if (!isLoggedIn) return
+            if(!hasData) return router.push('/survey')
+            setDisliked(!disliked);
+            setLiked(false);
+            setShowCommentBox(true);
+            if (disliked) {
+                setComment('');
+            }
+            const feedbackData = {
+                musicsheetid: id,
+                liked: 0,
+                disliked: !disliked ? 1 : 0,
+                comment: ''
+            };
+            const response = sendFeedbackData(credential, feedbackData);
         
     })
     };
@@ -121,6 +123,7 @@ export default function PiecePage ({}){
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
           handleCommentSubmit();
+          setShowCommentBox(false)
         }
     };
 
@@ -161,6 +164,7 @@ export default function PiecePage ({}){
       };
 
     if( id == undefined || piece === null) return <></>
+    const averageDifficulty = Math.round((piece.difficulty.x1 + piece.difficulty.x2) / 2 * 100) / 100;
     return (
         <>
         <Head>
@@ -170,7 +174,7 @@ export default function PiecePage ({}){
             <link rel="icon" href="/favicon.png" />
         </Head>
         
-        <div className={'min-h-screen flex flex-col w-screen h-screen overflow-hidden p-2'}>
+        <div className={'min-h-screen flex flex-col w-screen overflow-hidden p-2'}>
 
         <Link href="/"><div className={'ml-2 font-bold text-gray-600 text-center'} > CIPI </div></Link>
         
@@ -178,40 +182,39 @@ export default function PiecePage ({}){
             <div className={'ml-2 text-sm font-medium text-gray-600'}> {piece.author} </div>
             <div className={'ml-2 text-2xl font-bold'}>{piece.title}</div>
 
-            <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty: {piece.normalized_difficulty} </div>
-            <div className="ml-2 h-0 w-full bg-neutral-200 dark:bg-neutral-600">
-                <DifficultyBar filled={piece.normalized_difficulty/9} />
-            </div>
-            <div className="pt-7 flex justify-center mt-2">
+            <div className={'pt-5 ml-2 text-sm font-bold'}> Difficulty: {averageDifficulty} </div>
+            <div className="ml-2 w-full flex items-center flex-row">
+                <DifficultyBar filled={averageDifficulty / 9} />
                 <button
-                    className={`mr-2 ${
+                    className={`mr-2 ml-4 ${
                     liked ? 'text-green-500' : 'text-gray-500'
                     }`}
                     onClick={handleLike}>
-                    <FaThumbsUp size={20} />
+                    <FaThumbsUp size={16} />
                 </button>
                 <button
                     className={`ml-2 ${
                     disliked ? 'text-red-500' : 'text-gray-500'
                     }`}
                     onClick={handleDislike}>
-                    <FaThumbsDown size={20} />
+                    <FaThumbsDown size={16} />
                 </button>
-                {disliked && (
-                    <div className="ml-2 p-2">
+            </div>
+            <div className="flex justify-end">
+              <div className="ml-2">
                     <input
                         type="text"
                         value={comment}
                         onChange={handleCommentChange}
                         onKeyPress={handleKeyPress}
                         placeholder="Add a comment..."
+                        autoFocus
                         disabled={!disliked}
-                        className="rounded-md px-2 py-1 mr-1"
+                        className={`rounded-md py-1 text-end ${disliked && showCommentBox ? "visible": "invisible"}`}
                         style={{ outline: 'none', boxShadow: 'none' }}
 
                     />
-                    </div>
-                )}
+                    </div>  
             </div>
 
             <div className={'pt-5 ml-2 text-sm font-bold'}> Time Period </div>
@@ -230,28 +233,13 @@ export default function PiecePage ({}){
                 <p className={'pt-5 ml-2 text-sm font-medioum text-gray-500 hover:underline'}>{piece.title} </p>
              </div>
 
-             <div className="flex flex-1 justify-center content-center bg-white overflow-hidden">
+             <div className="flex justify-center content-center bg-white overflow-hidden flex-1">
                 <GraphExplorer pieces={[piece,...pieces]} id = {id} />
              </div>
 
         </div>
     </div>
-    <footer className="bg-white py-4 flex flex-col items-center text-center">
-        <div className="flex flex-col items-center">
-          <img src="/UPFLogo.png" alt="GitHub Logo" className="h-10 mb-2" />
-          <div className="text-gray-600 text-sm">
-            <p className="mb-1">
-              This is an Open Source project performed by a group of students from UPF.
-            </p>
-            <p className="mb-0">
-              All collected data will be used for academic purposes only.
-            </p>
-          </div>
-        </div>
-        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className=" text-gray-600 text-sm block underline hover:text-blue-500">
-          CIPI GitHub
-        </a>    
-      </footer>  
+    <Footer /> 
     </>
     );
 }

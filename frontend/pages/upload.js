@@ -8,7 +8,7 @@ import { PieceGraph, grayscaleHex, mapRange } from '@/components/GraphExplorer'
 import { PieceCard } from '@/components/PieceCard'
 import {useDropzone} from 'react-dropzone'
 import Link from 'next/link'
-
+import { Footer } from '../components/Footer'
 function Dropzone({ file, setFile, requireLogin }) {
     const noFileText = "Upload a PDF score";
     const [dropzoneText, setDropzoneText] = useState(noFileText)
@@ -228,7 +228,7 @@ export default function Upload() {
             <link rel="icon" href="/favicon.png" />
         </Head>
         <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
-            <div className="flex pb-4 pt-4">
+            <div className="flex pb-4">
                 <div className="font-bold text-gray-600 flex-1 text-center"><Link href="/">CIPI</Link></div>
             </div>
             <div className="items-center justify-center flex flex-col flex-1">
@@ -238,21 +238,6 @@ export default function Upload() {
                 { step === STEP_ERROR && <ErrorStep /> }
             </div>
         </main>
-        <footer className="bg-white py-4 flex flex-col items-center text-center">
-        <div className="flex flex-col items-center">
-          <img src="/UPFLogo.png" alt="GitHub Logo" className="h-10 mb-2" />
-          <div className="text-gray-600 text-sm">
-            <p className="mb-1">
-              This is an Open Source project performed by a group of students from UPF.
-            </p>
-            <p className="mb-0">
-              All collected data will be used for academic purposes only.
-            </p>
-          </div>
-        </div>
-        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className=" text-gray-600 text-sm block underline hover:text-blue-500">
-          CIPI GitHub
-        </a>    
-      </footer>  
+        <Footer />
     </>
 }

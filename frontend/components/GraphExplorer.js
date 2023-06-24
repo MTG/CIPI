@@ -37,15 +37,15 @@ const getBoundaries = (pieces) => {
     return { minX1, minX2, maxX1, maxX2 }
 }
 
-const getCoordinates = (difficulty, boundaries) => {
+const getCoordinates = (difficulty, boundaries, autocenter) => {
     const { x1, x2 } = difficulty
     const { minX1, minX2, maxX1, maxX2 } = boundaries
-    const x = mapRange(x1, minX1, maxX1, -1, 1) 
-    const y = mapRange(x2, minX2, maxX2, -1, 1) * -1 
+    const x = mapRange(x1, autocenter? minX1: 1, autocenter? maxX1: 9, -1, 1) 
+    const y = mapRange(x2, autocenter? minX2: 1, autocenter? maxX2: 9, -1, 1) * -1 
     return { x, y }
 }
 
-const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, isPieceSelectable, bg = '#ffffff' , radius, initZoom}) => {
+const PieceGraphCanva = ({ autocenter, width, height, pieces, onSelectPiece, getPieceColor, isPieceSelectable, bg = '#ffffff' , radius, initZoom}) => {
     const [hoveringPiece, setHoveringPiece] = useState(null)
     const [selectedPiece, setSelectedPiece] = useState(null)
 
@@ -122,7 +122,7 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
                             />
                             <g transform={zoom.toString()}>
                                 {pieces.map((piece, i) => {
-                                    const { x, y } = getCoordinates(piece.difficulty, boundaries)
+                                    const { x, y } = getCoordinates(piece.difficulty, boundaries, autocenter ?? true)
                                     return <React.Fragment key={`dot-${i}`}>
                                         <circle
                                             className={isPieceSelectable(piece) && "cursor-pointer"}
@@ -173,7 +173,7 @@ const PieceGraphCanva = ({ width, height, pieces, onSelectPiece, getPieceColor, 
     );
 }
 
-export const PieceGraph = ({ pieces, onSelectPiece, getPieceColor, isPieceSelectable, radius, initZoom}) => {
+export const PieceGraph = ({ pieces, autocenter, onSelectPiece, getPieceColor, isPieceSelectable, radius, initZoom}) => {
     
     return  <div className="relative flex flex-1 max-w-full overflow-hidden my-2">
                 <ParentSize debounceTime={10}>
@@ -185,6 +185,7 @@ export const PieceGraph = ({ pieces, onSelectPiece, getPieceColor, isPieceSelect
                             onSelectPiece={onSelectPiece} 
                             getPieceColor={getPieceColor}
                             isPieceSelectable={isPieceSelectable}
+                            autocenter={autocenter}
                             radius = {radius}
                             initZoom = {initZoom}
                         />

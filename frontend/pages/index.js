@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import { AuthContext } from '@/contexts/AuthContext'
 import { PieceCard } from '@/components/PieceCard'
 import { useHasUserData } from '@/hooks/useHasUserData'
+import { Footer } from '../components/Footer'
 
 const MapModeToggle = ({ mapMode, setMapMode }) => {
   return <div><label className="relative inline-flex items-center mr-5 cursor-pointer">
@@ -41,7 +42,7 @@ const SearchBar = ({ onSearch }) => {
   );
 };
 
-const SearchFilter = ({ setFilter }) => {
+const SearchFilter = ({ setFilter, showResultsPerPage, setSize, size }) => {
   const [period, setPeriod] = useState("");
   const [minDifficulty, setMinDifficulty] = useState(1);
   const [maxDifficulty, setMaxDifficulty] = useState(9);
@@ -49,6 +50,7 @@ const SearchFilter = ({ setFilter }) => {
   const handlePeriodChange = (event) => setPeriod(event.target.value);
   const handleMinDifficultyChange = (event) => setMinDifficulty(event.target.value);
   const handleMaxDifficultyChange = (event) => setMaxDifficulty(event.target.value);
+  const handleSizeChange = (event) => setSize(event.target.value)
 
   useEffect(() => {
     setFilter(x => ({...x, period, minDifficulty, maxDifficulty }));
@@ -97,46 +99,52 @@ const SearchFilter = ({ setFilter }) => {
             <option value={8}>Difficulty &le; 8</option>
             <option value={9}>Difficulty &le; 9</option>
           </select>
+          {showResultsPerPage && <select
+            value={size}
+            onChange={handleSizeChange}
+            className="cursor-pointer px-4 py-2 text-gray-900 bg-gray-100 rounded-md focus:outline-none focus:ring focus:ring-blue-300 mr-2 mb-2 sm:mb-0 text-sm" >
+            <option value={10}>10 pieces</option>
+            <option value={100}>100 pieces</option>
+            <option value={1000}>1000 pieces</option>
+          </select>}
     </div>
   );
 };
 
+const getArray = (max) => {
+  const result = []
+  for (let i = 0; i < max; i++){
+    result.push(i)
+  }
+  return result
+}
 const Skeleton = () => {
   return <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
       <ul className="w-3/4 flex-1 overflow-y-auto animate-pulse">
-      {[...Array(7)].map(key => <div key={key} role="status" class="mt-3 flex items-center justify-center h-20 bg-gray-200 rounded-lg animate-pulse">
-          <span class="sr-only">Loading...</span>
+      {getArray(10).map(key => <div key={key} role="status" className="mt-3 flex items-center justify-center h-20 bg-gray-200 rounded-lg animate-pulse">
+          <span className="sr-only">Loading...</span>
       </div>)}
       </ul>
     </div>
 }
-const ListExplorer = ({ pieces, filter }) => {
+const ListExplorer = ({ pieces, page, setPage, totalPages }) => {
   const router = useRouter();
-  const [selectedPiece, setSelectedPiece] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  
+  const pagesPerSet = 10; // Number of pages per set
+
   if (pieces === null) return <Skeleton />
 
-  const itemsPerPage = 7;
-  const pagesPerSet = 10; // Number of pages per set
-  const totalPages = Math.ceil((pieces?.length ?? 0) / itemsPerPage);
 
   const handlePieceSelection = (piece) => {
-    setSelectedPiece(piece);
     router.push(`/pieces/${piece.id}`);
   };
 
-  const lastIndex = currentPage * itemsPerPage;
-  const firstIndex = lastIndex - itemsPerPage;
-  const displayedPieces = pieces.slice(firstIndex, lastIndex);
-
   const goToPage = (page) => {
-    setCurrentPage(page);
+    setPage(page);
+    window.scrollTo(0, 0);
   };
 
-
   const renderPageButtons = () => {
-    const currentPageSet = Math.ceil(currentPage / pagesPerSet);
+    const currentPageSet = Math.ceil(page / pagesPerSet);
     const lastPageSet = Math.ceil(totalPages / pagesPerSet);
 
     const startPage = (currentPageSet - 1) * pagesPerSet + 1;
@@ -144,16 +152,16 @@ const ListExplorer = ({ pieces, filter }) => {
 
     const buttons = [];
 
-    for (let page = startPage; page <= endPage; page++) {
+    for (let thisPage = startPage; thisPage <= endPage; thisPage++) {
       buttons.push(
         <button
-          key={page}
+          key={thisPage}
           className={`mx-1 px-3 py-1 rounded-md ${
-            currentPage === page ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'
+            thisPage === page ? 'bg-gray-300' : 'bg-gray-100 hover:bg-gray-200'
           }`}
-          onClick={() => goToPage(page)}
+          onClick={() => goToPage(thisPage)}
         >
-          {page}
+          {thisPage}
         </button>
       );
     }
@@ -188,12 +196,10 @@ const ListExplorer = ({ pieces, filter }) => {
   return (
    <div className={'items-center w-5/6 flex flex-1 flex-col overflow-hidden'}>
       <ul className="w-3/4 flex-1 overflow-y-auto">
-       {displayedPieces.map((piece) => (
+       {pieces.map((piece) => (
           <li key={piece.id}>
            <div
-             className={`my-5 border p-4 rounded-md hover:bg-gray-100 cursor-pointer ${
-                selectedPiece === null ? '' : ''
-             }`}
+             className={`my-5 border p-4 rounded-md hover:bg-gray-100 cursor-pointer`}
              onClick={() => handlePieceSelection(piece)}
            >
               <div className={'ml-2 text-sm font-medium text-gray-600'}>
@@ -211,6 +217,11 @@ const ListExplorer = ({ pieces, filter }) => {
   );
 }
 
+const GraphExplorerSkeleton = () => {
+  return <div role="status" className="mt-3 flex items-center justify-center flex-1 bg-gray-200 rounded-lg animate-pulse">
+  <span className="sr-only">Loading...</span>
+</div>
+}
 export const GraphExplorer = ({ pieces }) => {
   const [selectedPiece, setSelectedPiece] = useState(null)
   const getPieceColor = ({ piece, isHovered, isSelected }) => {
@@ -220,16 +231,20 @@ export const GraphExplorer = ({ pieces }) => {
     return grayscaleHex(mappedDifficulty);
   };
   return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
-    <PieceCard selectedPiece={selectedPiece} />
+    { pieces === null? <GraphExplorerSkeleton />:
+    <><PieceCard selectedPiece={selectedPiece} />
     <PieceGraph
       pieces={pieces}
       onSelectPiece={setSelectedPiece}
       selectedPiece={selectedPiece}
       getPieceColor={getPieceColor}
       isPieceSelectable={() => true}
-      radius = {0.0125/2}
-      initZoom = {300}
-    />
+      radius={0.0125/2}
+      initZoom={300}
+      autoCenter={false}
+    /></>
+    }
+    
   </div>
 }
 
@@ -249,14 +264,28 @@ const getPieces = async (sz, pg, pr, mind, maxd, query) => {
 export default function Home() {
   const [pieces, setPieces] = useState(null);
   const [mapMode, setMapMode] = useState(false);
-  const router = useRouter();
-  const hasData = useHasUserData();
-
   const [searchFilter, setSearchFilter] = useState({
     period: '',
     minDifficulty: 1,
     maxDifficulty: 9,
     query: ''});
+
+  const [page, setPage] = useState(false)
+  const [totalResults, setTotalResults] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [size, setSize] = useState(10)
+  useEffect(() => {
+    setPage(1)
+    setSize(mapMode? 1000: 10)
+  }, [mapMode])
+
+  useEffect(() => {
+    if (size === 0) return setTotalPages(0)
+    setTotalPages(Math.ceil(totalResults / size))
+  }, [size, totalResults])
+
+  const router = useRouter();
+  const hasData = useHasUserData();
 
   const {requireLogin, credential } = useContext(AuthContext);
 
@@ -265,13 +294,18 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setPage(1)
+  }, [searchFilter, size])
+
+  useEffect(() => {
     const { period, minDifficulty, maxDifficulty, query } = searchFilter;
     setPieces(null)
-    getPieces(1000, 1, period, minDifficulty, maxDifficulty, query)
+    getPieces(size, page, period, minDifficulty, maxDifficulty, query)
       .then((r) => {
         setPieces(r['array']);
+        setTotalResults(r['_links']['total_pages']);
       });
-  }, [searchFilter])
+  }, [searchFilter, page, size])
   
   // example of how to use the login
   useEffect(() => {
@@ -299,17 +333,19 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.png" />
       </Head>
-      <main className="min-h-screen flex flex-col w-screen h-screen overflow-hidden p-4 overflow-hidden relative">
+      <main className="min-h-screen flex flex-col w-screen overflow-hidden p-4 overflow-hidden relative">
         <div className="flex pb-4">
           <MapModeToggle mapMode={mapMode} setMapMode={setMapMode} />
           <div className="font-bold text-gray-600 flex-1 text-center">CIPI</div>
-         <button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleSurveyUploadPDF}>Upload PDF</button>
+         <button className="bg-black text-white rounded hover:bg-gray-800 hover:bg-gray-800 text-white py-2 px-4 me-3 text-sm" onClick={handleSurveyUploadPDF}>Upload PDF</button>
         </div>
         <div className="flex justify-center ">
           <SearchBar onSearch={handleSearch} />
         </div>
         <div className="flex justify-center">
-          <SearchFilter setFilter={setSearchFilter} />
+          <SearchFilter setFilter={setSearchFilter} 
+                        size={size} setSize={setSize} 
+                        showResultsPerPage={true} />
         </div>
         {mapMode && (
           <div className="flex justify-center content-center flex-1 bg-white overflow-hidden">
@@ -318,26 +354,11 @@ export default function Home() {
         )}
         {!mapMode && (
           <div className="flex justify-center flex-1 overflow-hidden">
-            <ListExplorer pieces={pieces} filter={searchFilter} />
+            <ListExplorer pieces={pieces} filter={searchFilter} totalPages={totalPages} setPage={setPage} page={page}/>
           </div>
         )}
       </main>
-      <footer className="bg-white py-4 flex flex-col items-center text-center">
-        <div className="flex flex-col items-center">
-          <img src="/UPFLogo.png" alt="GitHub Logo" className="h-10 mb-2" />
-          <div className="text-gray-600 text-sm">
-            <p className="mb-1">
-              This is an Open Source project performed by a group of students from UPF.
-            </p>
-            <p className="mb-0">
-              All collected data will be used for academic purposes only.
-            </p>
-          </div>
-        </div>
-        <a href="https://github.com/miquelvir/CIPI.git" target="_blank" rel="noopener noreferrer" className=" text-gray-600 text-sm block underline hover:text-blue-500">
-          CIPI GitHub
-        </a>    
-      </footer>  
+      <Footer />
     </>
   );
 }
