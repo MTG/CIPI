@@ -106,6 +106,7 @@ const SearchFilter = ({ setFilter, showResultsPerPage, setSize, size }) => {
             <option value={10}>10 pieces</option>
             <option value={100}>100 pieces</option>
             <option value={1000}>1000 pieces</option>
+            <option value={5000}>5000 pieces</option>
           </select>}
     </div>
   );
@@ -270,7 +271,7 @@ export default function Home() {
     maxDifficulty: 9,
     query: ''});
 
-  const [page, setPage] = useState(false)
+  const [page, setPage] = useState(1)
   const [totalResults, setTotalResults] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [size, setSize] = useState(10)

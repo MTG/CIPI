@@ -32,7 +32,7 @@ export const GraphExplorer = ({ pieces, id }) => {
         if (isHovered) return grayscaleHex(mappedDifficulty - 0.2);
         return grayscaleHex(mappedDifficulty);
     };
-    return <div className="flex flex-1 flex-col p-4 max-h-full overflow-hidden">
+    return <div className="flex flex-1 flex-col p-4 overflow-hidden" style={{minHeight: '500px'}}>
         <PieceCard selectedPiece={selectedPiece} />
         <PieceGraph
             pieces={pieces}
@@ -219,12 +219,12 @@ export default function PiecePage ({}){
 
             <div className={'pt-5 ml-2 text-sm font-bold'}> Time Period </div>
             <div className={'pb-5 ml-2 text-sm font-medium text-gray-600'}> {piece.period} </div>
-
-            <button className="bg-black text-white rounded hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleUrl}>
-                Download PDF
-            </button>
-
-            <hr className="border-t border-gray-500 my-4" />
+            <div className="px-1 pb-4">
+                <button className="bg-black text-white rounded hover:bg-gray-800 text-white py-2 px-4 text-sm" onClick={handleUrl}>
+                    Download PDF
+                </button>
+            </div>
+            <hr className="border-t border-gray-300 my-4" />
         
             <div className="flex justify-center">
                 <p className={'pt-5 ml-2 text-sm font-bold'}>Explore pieces of similar difficulty to: </p>
