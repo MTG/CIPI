@@ -9,6 +9,3 @@ This project involves building a web-based tool for exploring and recommending c
 # Developer setup
 - Follow the instructions in `/backend/README.md` to start the backend
 - Follow the instructions in `/frontend/README.md` to start the frontend
-  
-# Staging
-https://cipi.vercel.app/
