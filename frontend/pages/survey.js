@@ -69,7 +69,8 @@ export default function Home() {
       
       if (currentQuestion === questions.length - 1) {
         const response = await sendSurvey(credential, [...surveyAnswers, answer]);
-        router.push('/upload');
+        router.back();
+
       } else {
         // Go to the next question
         setCurrentQuestion(currentQuestion + 1);
@@ -95,7 +96,7 @@ export default function Home() {
         <div className="flex pb-4">
           <div className="font-bold text-gray-600 flex-1 text-center"><Link href="/">CIPI</Link></div>
         </div>
-        <div className="flex items-center justify-center pt-60">
+        <div className="flex items-center justify-center pt-40">
           <div className="border border-neutral-950 rounded-lg p-4 flex flex-col lg:flex-row">
             <div className="w-full lg:w-1/2 pr-4">
               <h1 className="text-xl font-bold mb-4">
@@ -136,6 +137,9 @@ export default function Home() {
               )}
             </div>
           </div>
+        </div>
+        <div className="flex justify-center pt-10 mb-4 text-sm text-gray-600">
+          This survey is designed to gather information about our users. Your responses will help us better understand your piano experience and preferences.
         </div>
         </main>
         <Footer />
