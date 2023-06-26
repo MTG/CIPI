@@ -202,7 +202,7 @@ const getResultsUntilDone = async (credential, id) => {
     while (true){
         const r = await getResults(credential, id);
         if (r.data.status === "succeeded") return r;
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
     }
 }
 
