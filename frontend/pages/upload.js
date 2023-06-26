@@ -156,7 +156,7 @@ const ExploreStep = ({ file, difficulty, similarScores }) => {
             selectedPiece={selectedPiece}
             getPieceColor={getPieceColor}
             isPieceSelectable={() => true}
-            radius = {0.00125*2}
+            radius = {0.125}
             initZoom = {300}
             />
         </div>
@@ -172,7 +172,7 @@ const uploadPdf = async (credential, file) => {
     const formData = new FormData();
     formData.append('score', file);
 
-    const response = await fetch(`${API_HOST}/api/pieces`, 
+    const response = await fetch(`${API_HOST}/api/difficultyAnalysis`, 
       {
         method: 'POST',
         headers: {
@@ -185,6 +185,27 @@ const uploadPdf = async (credential, file) => {
     return body;
   }
 
+const getResults = async (credential, id) => {
+    const response = await fetch(`${API_HOST}/api/difficultyAnalysis/${id}`, 
+      {
+        method: 'GET',
+        headers: {
+          Authentication: `Bearer ${credential}`
+        }
+      }
+    );
+    const body = await response.json();
+    return body;
+}
+
+const getResultsUntilDone = async (credential, id) => {
+    while (true){
+        const r = await getResults(credential, id);
+        if (r.data.status === "succeeded") return r;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+}
+
 export default function Upload() {
     const [step, setStep] = useState(STEP_SELECT)
     const [file, setFile] = useState(null)
@@ -193,14 +214,19 @@ export default function Upload() {
     const [difficulty, setDifficulty] = useState(null)
     const [similarScores, setSimilarScores] = useState(null)
 
-    const startUpload = () => {
+    const startUpload = async () => {
         if (credential === null) return;
 
         const five_minutes = 5 * 60 * 1000;
         setLoadingStartTime(new Date().getTime() + five_minutes)
         setStep(STEP_LOAD)
 
-        uploadPdf(credential, file).then(r => {
+        await uploadPdf(credential, file)
+        .then(r => {
+            const id = r.data.id;
+            return getResultsUntilDone(credential, id)
+        })
+        .then(r => {
             setDifficulty(r.data.difficulty)
             const selfPiece = {
                 "url": null,
@@ -217,7 +243,8 @@ export default function Upload() {
             };
             setSimilarScores([selfPiece, ...r.data.pieces])
             setStep(STEP_EXPLORE)
-        }).catch(() => setStep(STEP_ERROR))
+        })
+        .catch(() => setStep(STEP_ERROR))
     }
 
     return <>

@@ -7,7 +7,7 @@ from ._auth.login import with_login
 import os
 from dotenv import load_dotenv
 from ._repository.pieces import get_pieces, get_pieces_id
-from ._clients.pdf_difficulty_service import get_difficulty
+from ._clients.pdf_difficulty_service import get_difficulty, start_model
 from ._repository.neighbors import get_neighbors_piece, get_neighbors_piece_difficulty
 from ._repository.feedback import insert_feedback_data
 load_dotenv(".env.development" if os.environ.get('ENV', None) == 'dev' else ".env.production")
@@ -46,16 +46,29 @@ def pieces():
     })
 
 
-@app.post('/api/pieces')
+@app.post('/api/difficultyAnalysis')
 @with_login
-def new_piece(user):
+def start_upload(user):
     print(f"{user.email} uploaded a file")
     score_file = request.files.get('score')
-    difficulty = get_difficulty(score_file)
+    id = start_model(score_file)
+    return jsonify({ 
+        "data": {
+            "id": id
+        }
+    })
+
+
+@app.get('/api/difficultyAnalysis/<id>')
+@with_login
+def get_upload_results(user, id):
+    print(f"{user.email} retrieving results for {id}")
+    status, difficulty = get_difficulty(id)
     return jsonify({ 
         "data": {
             "difficulty": difficulty,
-            "pieces": get_neighbors_piece_difficulty(difficulty, 13)  # 13 closest pieces by difficulty
+            "status": status,
+            "pieces": get_neighbors_piece_difficulty(difficulty, 13) if status == "succeeded" else None # 13 closest pieces by difficulty
         }
     })
 
